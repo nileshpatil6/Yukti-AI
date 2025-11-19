@@ -13,11 +13,14 @@ import ReactFlow, {
   Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Play, Download, Settings, Trash2, BookOpen, Upload } from 'lucide-react';
+import { Play, Download, Settings, Trash2, BookOpen, Upload, Paintbrush } from 'lucide-react';
 
 import { ComponentLibrary } from './components/ComponentLibrary';
 import { CustomNode } from './components/CustomNode';
+import { DrawingCanvas } from './components/DrawingCanvas';
+import { DrawingToolbar } from './components/DrawingToolbar';
 import { ComponentData } from './types';
+import { DrawingSettings } from './types/drawing';
 import { generateExperimentJSON, downloadJSON } from './utils/jsonGenerator';
 import { geminiService } from './utils/geminiService';
 import { EXAMPLE_EXPERIMENTS, EXAMPLE_LIST } from './data/exampleExperiments';
@@ -38,6 +41,19 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  // Drawing mode state
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
+    tool: 'pencil',
+    strokeColor: '#000000',
+    fillColor: 'transparent',
+    strokeWidth: 2,
+    brushSize: 20,
+    fontSize: 20,
+    fontFamily: 'Arial',
+    opacity: 1,
+  });
 
   // Check if user has visited before
   useEffect(() => {
@@ -199,11 +215,11 @@ function App() {
 
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh', fontFamily: 'system-ui, sans-serif' }}>
-      {/* Component Library Sidebar */}
-      <ComponentLibrary onDragStart={() => {}} />
+      {/* Component Library Sidebar - Hide when drawing */}
+      {!isDrawingMode && <ComponentLibrary onDragStart={() => {}} />}
 
       {/* Main Canvas */}
-      <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
+      <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative', display: isDrawingMode ? 'none' : 'block' }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -233,6 +249,26 @@ function App() {
               gap: '8px',
               flexWrap: 'wrap',
             }}>
+              <button
+                onClick={() => setIsDrawingMode(!isDrawingMode)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 16px',
+                  backgroundColor: isDrawingMode ? '#f59e0b' : '#8b5cf6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                }}
+              >
+                <Paintbrush size={16} />
+                {isDrawingMode ? 'Exit Drawing' : 'Drawing Mode'}
+              </button>
+
               <button
                 onClick={handleRunExperiment}
                 disabled={isAnalyzing}
@@ -390,12 +426,41 @@ function App() {
                 💡 <strong>Tips:</strong><br />
                 • Double-click nodes to edit<br />
                 • Click edges to add labels<br />
-                • Press Delete to remove items
+                • Press Delete to remove items<br />
+                • Use Drawing Mode for freehand sketches!
               </div>
             </div>
           </Panel>
         </ReactFlow>
+
+        {/* Drawing Toolbar */}
+        {isDrawingMode && (
+          <DrawingToolbar
+            settings={drawingSettings}
+            onSettingsChange={setDrawingSettings}
+            isDrawingMode={isDrawingMode}
+            onDrawingModeToggle={() => setIsDrawingMode(!isDrawingMode)}
+          />
+        )}
       </div>
+
+      {/* Full-Screen Drawing Mode */}
+      {isDrawingMode && (
+        <>
+          <DrawingToolbar
+            settings={drawingSettings}
+            onSettingsChange={setDrawingSettings}
+            isDrawingMode={isDrawingMode}
+            onDrawingModeToggle={() => setIsDrawingMode(!isDrawingMode)}
+          />
+          <DrawingCanvas
+            settings={drawingSettings}
+            isDrawingMode={isDrawingMode}
+            width={window.innerWidth}
+            height={window.innerHeight}
+          />
+        </>
+      )}
 
       {/* Results Panel */}
       {showResults && (
@@ -492,6 +557,7 @@ function App() {
                 <li><strong>Connect components</strong> by dragging from output (green) to input (blue)</li>
                 <li><strong>Double-click nodes</strong> to edit their labels</li>
                 <li><strong>Click connections</strong> to add labels/conditions</li>
+                <li>Click <strong>"Drawing Mode"</strong> to draw shapes freehand (auto-corrects to perfect shapes!)</li>
                 <li>Click <strong>"Run Experiment"</strong> to analyze with AI</li>
                 <li><strong>Export/Import</strong> your experiments as JSON</li>
               </ol>
