@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ExperimentJSON } from '../types';
+import { ExperimentJSON, AnalysisResult } from '../types';
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -8,12 +8,67 @@ export class GeminiService {
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
-  async analyzeExperiment(experimentJSON: ExperimentJSON): Promise<string> {
+  async getHint(experimentJSON: ExperimentJSON, userQuestion: string): Promise<string> {
     if (!this.genAI) {
       throw new Error('API key not set. Please configure your Gemini API key.');
     }
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    // Summarize the experiment context for better understanding
+    const nodeCount = experimentJSON.nodes.length;
+    const edgeCount = experimentJSON.edges.length;
+    const categories = [...new Set(experimentJSON.nodes.map(n => n.data.component.category))];
+    const componentLabels = experimentJSON.nodes.map(n => n.data.label).join(', ');
+
+    const prompt = `
+You are a friendly lab assistant robot 🤖 helping a student with their experiment.
+
+CURRENT EXPERIMENT CONTEXT:
+- Total Components: ${nodeCount}
+- Total Connections: ${edgeCount}
+- Categories Used: ${categories.join(', ')}
+- Components on Canvas: ${componentLabels}
+
+DETAILED EXPERIMENT STRUCTURE:
+${JSON.stringify(experimentJSON, null, 2)}
+
+STUDENT'S QUESTION: "${userQuestion}"
+
+INSTRUCTIONS:
+Analyze the current experiment setup and the student's question. Provide a helpful hint to guide them in the right direction.
+
+DO NOT:
+- Give the direct solution or complete answer
+- Tell them exactly what to add or how to fix it
+- Provide step-by-step instructions
+
+DO:
+- Ask guiding questions about their current components
+- Point out relationships they might have missed
+- Suggest what to think about regarding specific components they already have
+- Encourage exploration of connections between existing components
+- Reference specific components they've added by name
+- Help them think critically about what's missing or incorrect
+
+Keep your response conversational, encouraging, friendly, and under 120 words. Use emojis occasionally! 🔬✨
+`;
+
+    try {
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      throw new Error(`Failed to get hint: ${error}`);
+    }
+  }
+
+  async analyzeExperiment(experimentJSON: ExperimentJSON): Promise<AnalysisResult> {
+    if (!this.genAI) {
+      throw new Error('API key not set. Please configure your Gemini API key.');
+    }
+
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
 You are an expert science and engineering simulation AI. Analyze the following experiment setup and predict the outcome.
@@ -26,22 +81,38 @@ The experiment is represented as a node-based graph where:
 Experiment JSON:
 ${JSON.stringify(experimentJSON, null, 2)}
 
-Please analyze this experiment and provide:
-1. A detailed explanation of what this experiment does
-2. The expected output or result
-3. Any important observations or warnings
-4. Step-by-step process of what happens
-5. If applicable, calculate numerical results
+Please analyze this experiment and provide a JSON response with the following structure:
+{
+  "success": boolean, // true if the experiment is valid and produces a result, false if it fails or is incomplete
+  "title": string, // "Experiment Success!" or "Experiment Failed"
+  "message": string, // A short, concise summary of the result (1-2 sentences)
+  "mistake": string | null, // If failed, describe the mistake clearly. DO NOT provide the solution. If success, null.
+  "explanation": string, // A detailed explanation of what happened and why.
+  "svg": string | null // If success, generate a simple SVG string (starting with <svg... and ending with </svg>) that visualizes the output (e.g., a graph, a chemical reaction, a circuit diagram, or a visual representation of the result). Make it colorful, modern, and self-contained. If failed, null.
+}
 
-Provide your response in a clear, structured format with markdown formatting.
+Ensure the response is valid JSON. Do not include any markdown formatting or code blocks outside the JSON.
 `;
 
     try {
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      return response.text();
+      const text = response.text();
+      
+      // Clean up potential markdown code blocks
+      const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
+      
+      return JSON.parse(cleanText) as AnalysisResult;
     } catch (error) {
-      throw new Error(`Failed to analyze experiment: ${error}`);
+      console.error("Gemini Analysis Error:", error);
+      // Fallback error result
+      return {
+        success: false,
+        title: "Analysis Error",
+        message: "Failed to analyze the experiment.",
+        mistake: "There was an error communicating with the AI service.",
+        explanation: `Error details: ${error}`
+      };
     }
   }
 

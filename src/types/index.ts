@@ -40,3 +40,12 @@ export interface ExperimentJSON {
 }
 
 export type CategoryType = 'electronics' | 'chemicals' | 'physics' | 'biology' | 'coding' | 'mathematics' | 'mechanics' | 'optics' | 'thermodynamics' | 'quantum';
+
+export interface AnalysisResult {
+  success: boolean;
+  title: string;
+  message: string;
+  mistake?: string;
+  explanation: string;
+  svg?: string;
+}
