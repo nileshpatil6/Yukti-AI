@@ -4,6 +4,29 @@ import { useAuth } from "../../../context/AuthContext";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getRoomById, Question, Room } from "@/lib/voomData";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Clock,
+  Trophy,
+  CheckCircle,
+  Circle,
+  Code,
+  Target,
+  Medal,
+  Crown,
+  Award,
+  Binary,
+  Globe,
+  Brain,
+  Code2,
+  Database,
+  Layout,
+  Network,
+  Cloud,
+  Zap,
+  Users,
+} from "lucide-react";
 
 interface LeaderboardEntry {
   rank: number;
@@ -168,10 +191,10 @@ export default function RoomPage() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch(difficulty?.toLowerCase()) {
-      case "easy": return "#28a745";
-      case "medium": return "#fd7e14";
-      case "hard": return "#dc3545";
-      default: return "#6c757d";
+      case "easy": return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "medium": return "bg-amber-100 text-amber-700 border-amber-200";
+      case "hard": return "bg-rose-100 text-rose-700 border-rose-200";
+      default: return "bg-zinc-100 text-zinc-700 border-zinc-200";
     }
   };
 
@@ -181,379 +204,340 @@ export default function RoomPage() {
 
   if (loading || !room) {
     return (
-      <div style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-      }}>
-        <div style={{
-          padding: "2rem",
-          backgroundColor: "white",
-          borderRadius: "12px",
-          boxShadow: "0 10px 40px rgba(0,0,0,0.1)"
-        }}>
-          <p style={{ fontSize: "18px", color: "#667eea" }}>Loading room...</p>
-        </div>
+      <div className="min-h-screen flex justify-center items-center bg-white">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-8 bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-lg"
+        >
+          <div className="flex items-center gap-3">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Code className="w-6 h-6 text-orange-500" />
+            </motion.div>
+            <p className="text-lg font-sans text-zinc-900">Loading room...</p>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   const userRank = leaderboard.findIndex(entry => entry.user_id === user?.uid) + 1;
 
+  const isTimeCritical = timeRemaining && !timeRemaining.includes("Time's up") && 
+    parseInt(timeRemaining.split('h')[0]) === 0 && 
+    parseInt(timeRemaining.split('h')[1]?.split('m')[0] || "60") < 10;
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav style={{
-        backgroundColor: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        padding: "1rem 2rem",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <div style={{
-          fontSize: "24px",
-          fontWeight: "700",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          cursor: "pointer"
-        }}
-        onClick={() => router.push("/dashboard")}
-        >
-          Yukti
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white/60 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50"
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            onClick={() => router.push("/dashboard")}
+            className="text-2xl font-serif font-bold text-zinc-900 cursor-pointer flex items-center gap-2"
+          >
+            <Code2 className="w-6 h-6 text-orange-500" />
+            Yukti-AI
+          </motion.div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push("/voom")}
+            className="px-4 py-2 bg-white border border-zinc-200 hover:border-orange-200 text-zinc-900 rounded-lg font-sans text-sm font-medium flex items-center gap-2 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Rooms
+          </motion.button>
         </div>
-        
-        <button
-          onClick={() => router.push("/voom")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "600"
-          }}
-        >
-          ← Back to Rooms
-        </button>
-      </nav>
+      </motion.nav>
 
       {/* Room Header */}
-      <div style={{
-        padding: "2rem",
-        maxWidth: "1400px",
-        margin: "0 auto"
-      }}>
-        <div style={{
-          backgroundColor: "rgba(255,255,255,0.95)",
-          borderRadius: "16px",
-          padding: "2rem",
-          marginBottom: "2rem",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1.5rem" }}>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <div style={{
-                fontSize: "48px",
-                width: "80px",
-                height: "80px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-                borderRadius: "16px"
-              }}>
-                {room.icon}
-              </div>
+      <div className="py-16 px-6 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-8 mb-6 shadow-lg"
+        >
+          <div className="flex justify-between items-start gap-6 mb-6">
+            <div className="flex gap-6 items-center flex-1">
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+                className="w-20 h-20 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl shadow-md"
+              >
+                <Target className="w-10 h-10 text-white" />
+              </motion.div>
               <div>
-                <h1 style={{
-                  fontSize: "32px",
-                  fontWeight: "800",
-                  color: "#333",
-                  marginBottom: "0.5rem"
-                }}>
+                <h1 className="text-4xl font-serif font-bold text-zinc-900 mb-2">
                   {room.topic}
                 </h1>
-                <p style={{ fontSize: "16px", color: "#666" }}>
+                <p className="text-base font-sans text-zinc-600">
                   {room.description}
                 </p>
               </div>
             </div>
 
             {/* Timer */}
-            <div style={{
-              textAlign: "center",
-              padding: "1rem",
-              backgroundColor: "#fff3cd",
-              borderRadius: "12px",
-              minWidth: "180px"
-            }}>
-              <div style={{ fontSize: "12px", color: "#856404", marginBottom: "0.25rem" }}>
-                Time Remaining
+            <motion.div
+              animate={isTimeCritical ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ duration: 1, repeat: isTimeCritical ? Infinity : 0 }}
+              className={`text-center px-6 py-4 rounded-xl min-w-[200px] border ${
+                isTimeCritical 
+                  ? 'bg-orange-50 border-orange-200' 
+                  : 'bg-white border-zinc-200'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Clock className={`w-4 h-4 ${isTimeCritical ? 'text-orange-500' : 'text-zinc-500'}`} />
+                <span className="text-xs font-mono uppercase tracking-wide text-zinc-500">
+                  Time Remaining
+                </span>
               </div>
-              <div style={{ fontSize: "24px", fontWeight: "800", color: "#856404" }}>
+              <div className={`text-2xl font-mono font-bold ${
+                isTimeCritical ? 'text-orange-500' : 'text-zinc-900'
+              }`}>
                 {timeRemaining}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* User Stats */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "1rem",
-            padding: "1.5rem",
-            backgroundColor: "#f8f9fa",
-            borderRadius: "12px"
-          }}>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "#667eea" }}>
+          <div className="grid grid-cols-4 gap-4 p-6 bg-white/80 border border-zinc-100 rounded-xl">
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="text-center"
+            >
+              <div className="text-3xl font-serif font-bold text-zinc-900 mb-1">
                 {userProgress.questionsSolved}/{room.total_questions}
               </div>
-              <div style={{ fontSize: "14px", color: "#666" }}>Solved</div>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "#28a745" }}>
+              <div className="text-sm font-mono text-zinc-500 uppercase tracking-wide">Solved</div>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="text-center"
+            >
+              <div className="text-3xl font-serif font-bold text-orange-500 mb-1">
                 {userProgress.totalPoints}
               </div>
-              <div style={{ fontSize: "14px", color: "#666" }}>Points</div>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "#fd7e14" }}>
+              <div className="text-sm font-mono text-zinc-500 uppercase tracking-wide">Points</div>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="text-center"
+            >
+              <div className="text-3xl font-serif font-bold text-zinc-900 mb-1">
                 #{userRank || "-"}
               </div>
-              <div style={{ fontSize: "14px", color: "#666" }}>Rank</div>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "28px", fontWeight: "800", color: "#dc3545" }}>
+              <div className="text-sm font-mono text-zinc-500 uppercase tracking-wide">Rank</div>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="text-center"
+            >
+              <div className="text-3xl font-serif font-bold text-zinc-900 mb-1">
                 {leaderboard.length}
               </div>
-              <div style={{ fontSize: "14px", color: "#666" }}>Competitors</div>
-            </div>
+              <div className="text-sm font-mono text-zinc-500 uppercase tracking-wide">Competitors</div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tabs */}
-        <div style={{
-          backgroundColor: "rgba(255,255,255,0.95)",
-          borderRadius: "16px",
-          padding: "1rem",
-          marginBottom: "2rem",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-          display: "flex",
-          gap: "1rem"
-        }}>
-          <button
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-2 mb-6 flex gap-2"
+        >
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveTab("questions")}
-            style={{
-              flex: 1,
-              padding: "1rem",
-              backgroundColor: activeTab === "questions" ? "#667eea" : "transparent",
-              color: activeTab === "questions" ? "white" : "#333",
-              border: "none",
-              borderRadius: "12px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "all 0.3s"
-            }}
+            className={`flex-1 px-6 py-4 rounded-xl font-sans text-base font-semibold transition-all flex items-center justify-center gap-2 ${
+              activeTab === "questions"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-transparent text-zinc-900 hover:bg-zinc-50"
+            }`}
           >
-            📝 Questions ({questions.length})
-          </button>
-          <button
+            <Code className="w-5 h-5" />
+            Questions ({questions.length})
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setActiveTab("leaderboard")}
-            style={{
-              flex: 1,
-              padding: "1rem",
-              backgroundColor: activeTab === "leaderboard" ? "#667eea" : "transparent",
-              color: activeTab === "leaderboard" ? "white" : "#333",
-              border: "none",
-              borderRadius: "12px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "all 0.3s"
-            }}
+            className={`flex-1 px-6 py-4 rounded-xl font-sans text-base font-semibold transition-all flex items-center justify-center gap-2 ${
+              activeTab === "leaderboard"
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-transparent text-zinc-900 hover:bg-zinc-50"
+            }`}
           >
-            🏆 Leaderboard
-          </button>
-        </div>
+            <Trophy className="w-5 h-5" />
+            Leaderboard
+          </motion.button>
+        </motion.div>
 
         {/* Content */}
         {activeTab === "questions" ? (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
-            gap: "1.5rem"
-          }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {questions.map((question, index) => {
               const isSolved = getQuestionStatus(question.id);
               return (
-                <div
+                <motion.div
                   key={question.id}
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "16px",
-                    padding: "1.5rem",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                    transition: "all 0.3s ease",
-                    border: isSolved ? "3px solid #28a745" : "none"
-                  }}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -4 }}
+                  className={`bg-white/60 backdrop-blur-md rounded-2xl p-6 shadow-lg border-2 transition-all ${
+                    isSolved 
+                      ? "border-emerald-200 bg-emerald-50/30" 
+                      : "border-zinc-200 hover:border-orange-200"
+                  }`}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                    <div style={{
-                      fontSize: "14px",
-                      fontWeight: "700",
-                      color: "#667eea"
-                    }}>
-                      Question #{index + 1}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2">
+                      {isSolved ? (
+                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-zinc-400" />
+                      )}
+                      <span className="text-sm font-mono font-bold text-zinc-900 uppercase tracking-wide">
+                        Question #{index + 1}
+                      </span>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                      <span style={{
-                        padding: "0.25rem 0.75rem",
-                        backgroundColor: getDifficultyColor(question.difficulty),
-                        color: "white",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        textTransform: "capitalize"
-                      }}>
+                    <div className="flex gap-2 items-center">
+                      <span className={`px-3 py-1 rounded-lg text-xs font-sans font-semibold capitalize border ${getDifficultyColor(question.difficulty)}`}>
                         {question.difficulty}
                       </span>
-                      <span style={{
-                        padding: "0.25rem 0.75rem",
-                        backgroundColor: "#ffc107",
-                        color: "white",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                        fontWeight: "600"
-                      }}>
+                      <span className="px-3 py-1 bg-orange-100 text-orange-700 border border-orange-200 rounded-lg text-xs font-mono font-bold">
                         {question.points} pts
                       </span>
                     </div>
                   </div>
 
-                  <p style={{
-                    fontSize: "15px",
-                    color: "#333",
-                    lineHeight: "1.6",
-                    marginBottom: "1.5rem",
-                    minHeight: "60px"
-                  }}>
+                  <p className="text-base font-sans text-zinc-700 leading-relaxed mb-6 min-h-[60px]">
                     {question.question_text}
                   </p>
 
                   {isSolved ? (
-                    <div style={{
-                      padding: "0.75rem",
-                      backgroundColor: "#d4edda",
-                      borderRadius: "8px",
-                      textAlign: "center",
-                      color: "#155724",
-                      fontWeight: "600"
-                    }}>
-                      ✅ Solved!
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleSolveQuestion(question)}
-                      style={{
-                        width: "100%",
-                        padding: "0.75rem",
-                        background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        cursor: "pointer"
-                      }}
+                    <motion.div
+                      initial={{ scale: 0.9 }}
+                      animate={{ scale: 1 }}
+                      className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 border border-emerald-200 rounded-xl"
                     >
-                      🚀 Solve on Canvas
-                    </button>
+                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                      <span className="font-sans font-semibold text-emerald-700">Solved!</span>
+                    </motion.div>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleSolveQuestion(question)}
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-sans font-semibold shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <Zap className="w-5 h-5" />
+                      Solve on Canvas
+                    </motion.button>
                   )}
-                </div>
+                </motion.div>
               );
             })}
           </div>
         ) : (
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "16px",
-            padding: "2rem",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-          }}>
-            <h2 style={{ fontSize: "24px", fontWeight: "700", color: "#333", marginBottom: "1.5rem" }}>
-              🏆 Leaderboard
-            </h2>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-8 shadow-lg"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Trophy className="w-7 h-7 text-orange-500" />
+              <h2 className="text-3xl font-serif font-bold text-zinc-900">
+                Leaderboard
+              </h2>
+            </div>
             {leaderboard.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem", color: "#999" }}>
-                <p style={{ fontSize: "18px" }}>No submissions yet. Be the first!</p>
-              </div>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-center py-16"
+              >
+                <Users className="w-16 h-16 text-zinc-300 mx-auto mb-4" />
+                <p className="text-lg font-sans text-zinc-500">No submissions yet. Be the first!</p>
+              </motion.div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {leaderboard.map((entry) => (
-                  <div
-                    key={entry.user_id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "1rem",
-                      backgroundColor: entry.user_id === user?.uid ? "#e8f0fe" : "#f8f9fa",
-                      borderRadius: "12px",
-                      border: entry.user_id === user?.uid ? "2px solid #667eea" : "none"
-                    }}
-                  >
-                    <div style={{
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      background: entry.rank <= 3 
-                        ? "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)"
-                        : "#e1e8ed",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      fontWeight: "800",
-                      color: entry.rank <= 3 ? "#fff" : "#333",
-                      marginRight: "1rem"
-                    }}>
-                      {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : entry.rank}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "16px", fontWeight: "600", color: "#333" }}>
-                        {entry.user_name}
-                        {entry.user_id === user?.uid && (
-                          <span style={{ marginLeft: "0.5rem", fontSize: "14px", color: "#667eea" }}>
-                            (You)
+              <div className="flex flex-col gap-3">
+                {leaderboard.map((entry, index) => {
+                  const isCurrentUser = entry.user_id === user?.uid;
+                  const RankIcon = entry.rank === 1 ? Crown : entry.rank === 2 || entry.rank === 3 ? Medal : Trophy;
+                  const rankColor = entry.rank === 1 ? "text-amber-500" : entry.rank === 2 ? "text-zinc-400" : entry.rank === 3 ? "text-orange-600" : "text-zinc-500";
+                  
+                  return (
+                    <motion.div
+                      key={entry.user_id}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ x: 4 }}
+                      className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
+                        isCurrentUser
+                          ? "bg-orange-50/50 border-orange-200"
+                          : "bg-white/80 border-zinc-200 hover:border-zinc-300"
+                      }`}
+                    >
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center border-2 ${
+                        entry.rank <= 3 
+                          ? "bg-gradient-to-br from-amber-100 to-amber-200 border-amber-300" 
+                          : "bg-zinc-50 border-zinc-200"
+                      }`}>
+                        {entry.rank <= 3 ? (
+                          <RankIcon className={`w-7 h-7 ${rankColor}`} />
+                        ) : (
+                          <span className="text-lg font-serif font-bold text-zinc-700">
+                            {entry.rank}
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: "13px", color: "#666" }}>
-                        Solved {entry.questions_solved} question{entry.questions_solved !== 1 ? 's' : ''}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg font-sans font-semibold text-zinc-900">
+                            {entry.user_name}
+                          </span>
+                          {isCurrentUser && (
+                            <span className="px-2 py-0.5 bg-orange-100 text-orange-700 border border-orange-200 rounded-md text-xs font-mono font-semibold">
+                              YOU
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-sans text-zinc-600">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>
+                            Solved {entry.questions_solved} question{entry.questions_solved !== 1 ? 's' : ''}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: "24px", fontWeight: "700", color: "#667eea" }}>
-                        {entry.total_points}
+                      <div className="text-right">
+                        <div className="text-3xl font-serif font-bold text-orange-500 mb-1">
+                          {entry.total_points}
+                        </div>
+                        <div className="text-xs font-mono text-zinc-500 uppercase tracking-wide">points</div>
                       </div>
-                      <div style={{ fontSize: "12px", color: "#666" }}>points</div>
-                    </div>
-                  </div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

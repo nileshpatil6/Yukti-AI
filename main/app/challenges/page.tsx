@@ -2,6 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { 
+  ArrowLeft, 
+  Code, 
+  Trophy, 
+  Target, 
+  Zap, 
+  CheckCircle, 
+  Circle,
+  BookOpen,
+  Brain,
+  Award,
+  Sparkles
+} from "lucide-react";
 
 export default function ChallengesPage() {
   const router = useRouter();
@@ -33,18 +47,18 @@ export default function ChallengesPage() {
   }, []);
 
   const categories = [
-    { id: "electronics", name: "Electronics", icon: "⚡" },
-    { id: "ml", name: "Machine Learning", icon: "🤖" },
-    { id: "physics", name: "Physics", icon: "🔬" },
-    { id: "mathematics", name: "Mathematics", icon: "📐" },
-    { id: "programming", name: "Programming", icon: "💻" },
-    { id: "chemistry", name: "Chemistry", icon: "🧪" }
+    { id: "electronics", name: "Electronics", icon: Zap },
+    { id: "ml", name: "Machine Learning", icon: Brain },
+    { id: "physics", name: "Physics", icon: Target },
+    { id: "mathematics", name: "Mathematics", icon: Code },
+    { id: "programming", name: "Programming", icon: Code },
+    { id: "chemistry", name: "Chemistry", icon: BookOpen }
   ];
 
   const difficulties = [
-    { id: "easy", name: "Easy", color: "#28a745", icon: "✅" },
-    { id: "medium", name: "Medium", color: "#ffc107", icon: "⚠️" },
-    { id: "hard", name: "Hard", color: "#dc3545", icon: "🔥" }
+    { id: "easy", name: "Easy", color: "text-green-600", bgColor: "bg-green-50", borderColor: "border-green-200", icon: CheckCircle },
+    { id: "medium", name: "Medium", color: "text-orange-600", bgColor: "bg-orange-50", borderColor: "border-orange-200", icon: Circle },
+    { id: "hard", name: "Hard", color: "text-red-600", bgColor: "bg-red-50", borderColor: "border-red-200", icon: Zap }
   ];
 
   async function generateQuestions() {
@@ -97,329 +111,270 @@ export default function ChallengesPage() {
   }
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav style={{
-        backgroundColor: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        padding: "1rem 2rem",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <div style={{
-          fontSize: "24px",
-          fontWeight: "700",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          cursor: "pointer"
-        }}
-        onClick={() => router.push("/dashboard")}
-        >
-          Yukti
+      <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/60 backdrop-blur-md">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              <Trophy className="w-6 h-6 text-orange-500" />
+              <span className="font-serif text-2xl font-bold text-zinc-900">Yukti-AI</span>
+            </motion.div>
+            <motion.button 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-2 px-4 py-2 border border-zinc-200 hover:border-orange-200 rounded-lg text-sm font-medium text-zinc-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </motion.button>
+          </div>
         </div>
-        <button 
-          onClick={() => router.push("/dashboard")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "600"
-          }}
-        >
-          ← Back to Dashboard
-        </button>
       </nav>
 
-      <div style={{ padding: "2rem" }}>
+      <div className="container mx-auto px-6 py-16">
         {step === 1 ? (
           // Step 1: Question Configuration
-          <div style={{
-            maxWidth: "800px",
-            margin: "0 auto",
-            backgroundColor: "white",
-            borderRadius: "16px",
-            padding: "2.5rem",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
-          }}>
-            <h1 style={{
-              fontSize: "32px",
-              fontWeight: "700",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              marginBottom: "0.5rem"
-            }}>🏆 Generate Challenge</h1>
-            <p style={{ color: "#666", marginBottom: "2rem" }}>Configure your challenge questions</p>
-
-            {/* Category Selection */}
-            <div style={{ marginBottom: "2rem" }}>
-              <label style={{ fontSize: "16px", fontWeight: "600", color: "#333", display: "block", marginBottom: "1rem" }}>
-                1️⃣ Select Category
-              </label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
-                {categories.map(cat => (
-                  <div
-                    key={cat.id}
-                    onClick={() => setCategory(cat.id)}
-                    style={{
-                      padding: "1rem",
-                      border: `3px solid ${category === cat.id ? "#667eea" : "#e1e8ed"}`,
-                      borderRadius: "12px",
-                      cursor: "pointer",
-                      textAlign: "center",
-                      transition: "all 0.3s ease",
-                      backgroundColor: category === cat.id ? "#f0f4ff" : "white"
-                    }}
-                  >
-                    <div style={{ fontSize: "32px", marginBottom: "0.5rem" }}>{cat.icon}</div>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#333" }}>{cat.name}</div>
-                  </div>
-                ))}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="border border-zinc-200 bg-white rounded-2xl p-10 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <Trophy className="w-8 h-8 text-orange-500" />
+                <h1 className="font-serif text-4xl font-bold text-zinc-900">Generate Challenge</h1>
               </div>
-            </div>
+              <p className="text-zinc-600 mb-12">Configure your challenge questions</p>
 
-            {/* Difficulty Selection */}
-            <div style={{ marginBottom: "2rem" }}>
-              <label style={{ fontSize: "16px", fontWeight: "600", color: "#333", display: "block", marginBottom: "1rem" }}>
-                2️⃣ Select Difficulty
-              </label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-                {difficulties.map(diff => (
-                  <div
-                    key={diff.id}
-                    onClick={() => setDifficulty(diff.id)}
-                    style={{
-                      padding: "1.5rem",
-                      border: `3px solid ${difficulty === diff.id ? diff.color : "#e1e8ed"}`,
-                      borderRadius: "12px",
-                      cursor: "pointer",
-                      textAlign: "center",
-                      transition: "all 0.3s ease",
-                      backgroundColor: difficulty === diff.id ? `${diff.color}15` : "white"
-                    }}
-                  >
-                    <div style={{ fontSize: "32px", marginBottom: "0.5rem" }}>{diff.icon}</div>
-                    <div style={{ fontSize: "16px", fontWeight: "600", color: diff.color }}>{diff.name}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Question Count */}
-            <div style={{ marginBottom: "2rem" }}>
-              <label style={{ fontSize: "16px", fontWeight: "600", color: "#333", display: "block", marginBottom: "1rem" }}>
-                3️⃣ Number of Questions
-              </label>
-              <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                <input
-                  type="range"
-                  min="3"
-                  max="10"
-                  value={questionCount}
-                  onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                  style={{ flex: 1, cursor: "pointer" }}
-                />
-                <div style={{
-                  padding: "1rem 2rem",
-                  backgroundColor: "#667eea",
-                  color: "white",
-                  borderRadius: "12px",
-                  fontSize: "24px",
-                  fontWeight: "700",
-                  minWidth: "80px",
-                  textAlign: "center"
-                }}>
-                  {questionCount}
+              {/* Category Selection */}
+              <div className="mb-10">
+                <label className="font-mono text-sm uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold">1</span>
+                  Select Category
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {categories.map((cat) => {
+                    const Icon = cat.icon;
+                    return (
+                      <motion.div
+                        key={cat.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setCategory(cat.id)}
+                        className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
+                          category === cat.id
+                            ? "border-orange-500 bg-orange-50"
+                            : "border-zinc-200 hover:border-orange-200 bg-white"
+                        }`}
+                      >
+                        <Icon className={`w-8 h-8 mb-3 ${category === cat.id ? "text-orange-500" : "text-zinc-400"}`} />
+                        <div className="font-sans text-sm font-semibold text-zinc-900">{cat.name}</div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
 
-            {error && (
-              <div style={{
-                padding: "1rem",
-                backgroundColor: "#fee",
-                color: "#c33",
-                borderRadius: "8px",
-                marginBottom: "1rem"
-              }}>
-                ⚠️ {error}
+              {/* Difficulty Selection */}
+              <div className="mb-10">
+                <label className="font-mono text-sm uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold">2</span>
+                  Select Difficulty
+                </label>
+                <div className="grid grid-cols-3 gap-4">
+                  {difficulties.map((diff) => {
+                    const Icon = diff.icon;
+                    return (
+                      <motion.div
+                        key={diff.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setDifficulty(diff.id)}
+                        className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
+                          difficulty === diff.id
+                            ? `${diff.borderColor} ${diff.bgColor}`
+                            : "border-zinc-200 hover:border-orange-200 bg-white"
+                        }`}
+                      >
+                        <Icon className={`w-8 h-8 mb-3 ${difficulty === diff.id ? diff.color : "text-zinc-400"}`} />
+                        <div className={`font-sans text-base font-semibold ${difficulty === diff.id ? diff.color : "text-zinc-900"}`}>
+                          {diff.name}
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
 
-            <button
-              onClick={generateQuestions}
-              disabled={!category || !difficulty || loading}
-              style={{
-                width: "100%",
-                padding: "1rem",
-                background: category && difficulty ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : "#ccc",
-                color: "white",
-                border: "none",
-                borderRadius: "12px",
-                fontSize: "18px",
-                fontWeight: "600",
-                cursor: category && difficulty ? "pointer" : "not-allowed",
-                transition: "all 0.3s ease"
-              }}
-            >
-              {loading ? "🔄 Generating Questions..." : "✨ Generate Questions"}
-            </button>
-          </div>
+              {/* Question Count */}
+              <div className="mb-10">
+                <label className="font-mono text-sm uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold">3</span>
+                  Number of Questions
+                </label>
+                <div className="flex gap-6 items-center">
+                  <input
+                    type="range"
+                    min="3"
+                    max="10"
+                    value={questionCount}
+                    onChange={(e) => setQuestionCount(parseInt(e.target.value))}
+                    className="flex-1 h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                  />
+                  <div className="px-6 py-3 bg-orange-500 text-white rounded-xl text-2xl font-bold font-mono min-w-[80px] text-center">
+                    {questionCount}
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl mb-6 flex items-start gap-2"
+                >
+                  <Circle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm">{error}</span>
+                </motion.div>
+              )}
+
+              <motion.button
+                whileHover={{ scale: category && difficulty ? 1.02 : 1 }}
+                whileTap={{ scale: category && difficulty ? 0.98 : 1 }}
+                onClick={generateQuestions}
+                disabled={!category || !difficulty || loading}
+                className={`w-full py-4 rounded-xl text-base font-semibold transition-all flex items-center justify-center gap-2 ${
+                  category && difficulty
+                    ? "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
+                    : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Circle className="w-5 h-5" />
+                    </motion.div>
+                    Generating Questions...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    Generate Questions
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
         ) : (
           // Step 2: Display Generated Questions
-          <div style={{
-            maxWidth: "1200px",
-            margin: "0 auto"
-          }}>
-            <div style={{
-              backgroundColor: "white",
-              borderRadius: "16px",
-              padding: "2rem",
-              marginBottom: "2rem",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-            }}>
-              <h2 style={{
-                fontSize: "28px",
-                fontWeight: "700",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                marginBottom: "0.5rem"
-              }}>
-                📝 Generated Questions
-              </h2>
-              <p style={{ color: "#666" }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="max-w-7xl mx-auto"
+          >
+            <div className="border border-zinc-200 bg-white rounded-2xl p-8 mb-8 shadow-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <BookOpen className="w-7 h-7 text-orange-500" />
+                <h2 className="font-serif text-3xl font-bold text-zinc-900">
+                  Generated Questions
+                </h2>
+              </div>
+              <p className="text-zinc-600 font-mono text-sm">
                 Category: <strong>{categories.find(c => c.id === category)?.name}</strong> | 
-                Difficulty: <strong>{difficulty}</strong> | 
+                Difficulty: <strong className="capitalize">{difficulty}</strong> | 
                 Total: <strong>{questions.length} questions</strong>
               </p>
             </div>
 
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-              gap: "1.5rem"
-            }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {questions.map((q, index) => {
-                const diffColor = q.difficulty === "easy" ? "#28a745" : q.difficulty === "medium" ? "#ffc107" : "#dc3545";
+                const getDifficultyStyles = (difficulty: string) => {
+                  switch (difficulty.toLowerCase()) {
+                    case "easy":
+                      return { bg: "bg-green-50", text: "text-green-600", border: "border-green-200" };
+                    case "medium":
+                      return { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200" };
+                    case "hard":
+                      return { bg: "bg-red-50", text: "text-red-600", border: "border-red-200" };
+                    default:
+                      return { bg: "bg-zinc-50", text: "text-zinc-600", border: "border-zinc-200" };
+                  }
+                };
+                
+                const diffStyles = getDifficultyStyles(q.difficulty);
                 
                 return (
-                  <div
+                  <motion.div
                     key={index}
-                    style={{
-                      backgroundColor: "white",
-                      borderRadius: "16px",
-                      padding: "1.5rem",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                      transition: "all 0.3s ease",
-                      cursor: "pointer"
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = "translateY(-5px)";
-                      e.currentTarget.style.boxShadow = "0 15px 40px rgba(102,126,234,0.3)";
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
-                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="border border-zinc-200 hover:border-orange-200 bg-white rounded-xl p-6 shadow-sm transition-all cursor-pointer"
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                      <span style={{
-                        fontSize: "14px",
-                        fontWeight: "700",
-                        color: "#667eea"
-                      }}>
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="font-mono text-sm font-semibold text-orange-500">
                         Question {index + 1}
                       </span>
-                      <span style={{
-                        padding: "0.25rem 0.75rem",
-                        backgroundColor: diffColor,
-                        color: "white",
-                        borderRadius: "12px",
-                        fontSize: "12px",
-                        fontWeight: "600"
-                      }}>
-                        {q.difficulty.toUpperCase()}
+                      <span className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold uppercase ${diffStyles.bg} ${diffStyles.text}`}>
+                        {q.difficulty}
                       </span>
                     </div>
 
-                    <h3 style={{
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      color: "#333",
-                      marginBottom: "1rem",
-                      lineHeight: "1.5"
-                    }}>
+                    <h3 className="font-sans text-base font-semibold text-zinc-900 mb-3 line-clamp-2">
                       {q.question}
                     </h3>
 
                     {q.description && (
-                      <p style={{
-                        fontSize: "14px",
-                        color: "#666",
-                        marginBottom: "1rem",
-                        lineHeight: "1.5"
-                      }}>
+                      <p className="text-sm text-zinc-600 mb-4 line-clamp-3 leading-relaxed">
                         {q.description}
                       </p>
                     )}
 
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => startChallenge(index)}
-                      style={{
-                        width: "100%",
-                        padding: "0.75rem",
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        transition: "all 0.3s ease"
-                      }}
+                      className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                     >
-                      🚀 Start Challenge
-                    </button>
-                  </div>
+                      <Target className="w-4 h-4" />
+                      Start Challenge
+                    </motion.button>
+                  </motion.div>
                 );
               })}
             </div>
 
-            <button
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setStep(1);
                 setQuestions([]);
                 setCategory("");
                 setDifficulty("");
               }}
-              style={{
-                marginTop: "2rem",
-                padding: "1rem 2rem",
-                backgroundColor: "white",
-                color: "#667eea",
-                border: "2px solid #667eea",
-                borderRadius: "12px",
-                fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer",
-                display: "block",
-                margin: "2rem auto 0"
-              }}
+              className="mt-8 mx-auto block px-6 py-3 bg-white border-2 border-zinc-200 hover:border-orange-200 text-zinc-900 rounded-xl text-base font-semibold transition-colors flex items-center gap-2"
             >
-              ← Generate New Questions
-            </button>
-          </div>
+              <ArrowLeft className="w-5 h-5" />
+              Generate New Questions
+            </motion.button>
+          </motion.div>
         )}
       </div>
     </div>

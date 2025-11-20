@@ -2,6 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { 
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  Trophy,
+  Lightbulb,
+  Pencil,
+  Trash2,
+  RotateCcw,
+  Code
+} from "lucide-react";
 
 export default function SolveChallengePage() {
   const router = useRouter();
@@ -67,166 +80,105 @@ export default function SolveChallengePage() {
     }
   }
 
+  const getDifficultyStyles = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return { bg: "bg-green-50", text: "text-green-600", border: "border-green-200" };
+      case "medium":
+        return { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200" };
+      case "hard":
+        return { bg: "bg-red-50", text: "text-red-600", border: "border-red-200" };
+      default:
+        return { bg: "bg-zinc-50", text: "text-zinc-600", border: "border-zinc-200" };
+    }
+  };
+
   if (!question || !challengeData) {
     return (
-      <div style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "white",
-        fontSize: "20px"
-      }}>
-        Loading...
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-zinc-900 text-xl font-serif"
+        >
+          Loading...
+        </motion.div>
       </div>
     );
   }
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty.toLowerCase()) {
-      case "easy": return "#28a745";
-      case "medium": return "#ffc107";
-      case "hard": return "#dc3545";
-      default: return "#6c757d";
-    }
-  };
+  const diffStyles = getDifficultyStyles(question.difficulty);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav style={{
-        backgroundColor: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        padding: "1rem 2rem",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <div style={{
-          fontSize: "24px",
-          fontWeight: "700",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          cursor: "pointer"
-        }}
-        onClick={() => router.push("/dashboard")}
-        >
-          Yukti
-        </div>
-        
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          <div style={{
-            fontSize: "14px",
-            fontWeight: "600",
-            color: "#666",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#f0f0f0",
-            borderRadius: "8px"
-          }}>
-            Question {currentIndex + 1} of {challengeData.questions.length}
+      <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/60 backdrop-blur-md">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3 cursor-pointer"
+              onClick={() => router.push("/dashboard")}
+            >
+              <Trophy className="w-6 h-6 text-orange-500" />
+              <span className="font-serif text-2xl font-bold text-zinc-900">CodeBharat</span>
+            </motion.div>
+            
+            <div className="flex gap-4 items-center">
+              <div className="px-4 py-2 bg-zinc-100 border border-zinc-200 rounded-lg">
+                <span className="font-mono text-sm font-semibold text-zinc-700">
+                  Question {currentIndex + 1} of {challengeData.questions.length}
+                </span>
+              </div>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/challenges")}
+                className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Exit Challenge
+              </motion.button>
+            </div>
           </div>
-          <button 
-            onClick={() => router.push("/challenges")}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: "#667eea",
-              color: "white",
-              border: "none",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "600"
-            }}
-          >
-            Exit Challenge
-          </button>
         </div>
       </nav>
 
-      <div style={{ padding: "2rem", maxWidth: "1400px", margin: "0 auto" }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "400px 1fr",
-          gap: "2rem",
-          height: "calc(100vh - 150px)"
-        }}>
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[450px_1fr] gap-6 min-h-[calc(100vh-120px)]">
           {/* Question Panel */}
-          <div style={{
-            backgroundColor: "white",
-            borderRadius: "16px",
-            padding: "2rem",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-            overflowY: "auto"
-          }}>
-            <div style={{
-              display: "inline-block",
-              padding: "0.5rem 1rem",
-              backgroundColor: getDifficultyColor(question.difficulty),
-              color: "white",
-              borderRadius: "6px",
-              fontSize: "12px",
-              fontWeight: "600",
-              marginBottom: "1rem"
-            }}>
-              {question.difficulty.toUpperCase()}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="border border-zinc-200 bg-white rounded-2xl p-6 overflow-y-auto shadow-sm"
+          >
+            <div className="flex gap-2 mb-4">
+              <span className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold uppercase ${diffStyles.bg} ${diffStyles.text}`}>
+                {question.difficulty}
+              </span>
+              <span className="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-lg text-xs font-mono font-semibold">
+                {question.category}
+              </span>
             </div>
 
-            <div style={{
-              display: "inline-block",
-              marginLeft: "0.5rem",
-              padding: "0.5rem 1rem",
-              backgroundColor: "#f0f0f0",
-              color: "#333",
-              borderRadius: "6px",
-              fontSize: "12px",
-              fontWeight: "600",
-              marginBottom: "1rem"
-            }}>
-              {question.category}
-            </div>
-
-            <h1 style={{
-              fontSize: "24px",
-              fontWeight: "700",
-              color: "#333",
-              marginBottom: "1rem"
-            }}>
+            <h1 className="font-serif text-2xl font-bold text-zinc-900 mb-4 leading-tight">
               {question.question}
             </h1>
 
-            <p style={{
-              color: "#666",
-              lineHeight: "1.8",
-              marginBottom: "2rem"
-            }}>
+            <p className="text-zinc-600 leading-relaxed mb-6">
               {question.description}
             </p>
 
             {question.hints && question.hints.length > 0 && (
-              <div style={{
-                backgroundColor: "#fff3cd",
-                border: "1px solid #ffc107",
-                borderRadius: "8px",
-                padding: "1rem",
-                marginBottom: "2rem"
-              }}>
-                <div style={{
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  color: "#856404",
-                  marginBottom: "0.5rem"
-                }}>
-                  💡 Hints:
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="w-4 h-4 text-orange-600" />
+                  <span className="font-sans text-sm font-semibold text-orange-900">Hints:</span>
                 </div>
-                <ul style={{ margin: 0, paddingLeft: "1.5rem", color: "#856404" }}>
+                <ul className="space-y-2 pl-6 text-sm text-orange-900 list-disc">
                   {question.hints.map((hint: string, idx: number) => (
-                    <li key={idx} style={{ marginBottom: "0.5rem" }}>{hint}</li>
+                    <li key={idx}>{hint}</li>
                   ))}
                 </ul>
               </div>
