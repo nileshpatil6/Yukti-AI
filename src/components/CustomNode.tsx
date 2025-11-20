@@ -33,13 +33,14 @@ export const CustomNode = memo(({ data, selected }: NodeProps<CustomNodeData>) =
     <div
       className={`custom-node ${selected ? 'selected' : ''}`}
       style={{
-        padding: '12px 20px',
-        borderRadius: '8px',
-        border: `2px solid ${selected ? '#3b82f6' : '#d1d5db'}`,
+        padding: '18px 24px',
+        borderRadius: '12px',
+        border: `2px solid ${selected ? '#3b82f6' : '#e5e7eb'}`,
         backgroundColor: 'white',
-        minWidth: '150px',
-        boxShadow: selected ? '0 4px 12px rgba(59, 130, 246, 0.3)' : '0 2px 4px rgba(0,0,0,0.1)',
-        transition: 'all 0.2s',
+        minWidth: '180px',
+        boxShadow: selected ? '0 8px 24px rgba(59, 130, 246, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)' : '0 4px 12px rgba(0,0,0,0.08)',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        cursor: 'grab',
       }}
       onDoubleClick={handleDoubleClick}
     >
@@ -48,13 +49,24 @@ export const CustomNode = memo(({ data, selected }: NodeProps<CustomNodeData>) =
         <Handle
           type="target"
           position={Position.Left}
-          style={{ background: '#3b82f6', width: 10, height: 10 }}
+          style={{ 
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', 
+            width: 14, 
+            height: 14,
+            border: '3px solid white',
+            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.35)',
+          }}
         />
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {/* Icon */}
-        <div style={{ fontSize: '24px', textAlign: 'center' }}>
+        <div style={{ 
+          fontSize: '32px', 
+          textAlign: 'center',
+          marginBottom: '4px',
+          filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+        }}>
           {data.component.icon}
         </div>
 
@@ -79,11 +91,13 @@ export const CustomNode = memo(({ data, selected }: NodeProps<CustomNodeData>) =
         ) : (
           <div
             style={{
-              fontSize: '12px',
-              fontWeight: 500,
+              fontSize: '14px',
+              fontWeight: 600,
               textAlign: 'center',
               wordBreak: 'break-word',
-              color: '#374151',
+              color: '#111827',
+              letterSpacing: '-0.01em',
+              lineHeight: '1.4',
             }}
           >
             {text}
@@ -93,13 +107,15 @@ export const CustomNode = memo(({ data, selected }: NodeProps<CustomNodeData>) =
         {/* Category badge */}
         <div
           style={{
-            fontSize: '9px',
+            fontSize: '10px',
             backgroundColor: '#f3f4f6',
-            padding: '2px 6px',
-            borderRadius: '4px',
+            padding: '4px 8px',
+            borderRadius: '6px',
             textAlign: 'center',
             color: '#6b7280',
             textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            fontWeight: 600,
           }}
         >
           {data.component.category}
@@ -111,7 +127,13 @@ export const CustomNode = memo(({ data, selected }: NodeProps<CustomNodeData>) =
         <Handle
           type="source"
           position={Position.Right}
-          style={{ background: '#10b981', width: 10, height: 10 }}
+          style={{ 
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+            width: 14, 
+            height: 14,
+            border: '3px solid white',
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.35)',
+          }}
         />
       )}
     </div>

@@ -13,14 +13,18 @@ import ReactFlow, {
   Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Play, Download, Settings, Trash2, BookOpen, Upload } from 'lucide-react';
+import { Play, Download, Trash2, BookOpen, Upload, Menu } from 'lucide-react';
 
 import { ComponentLibrary } from './components/ComponentLibrary';
 import { CustomNode } from './components/CustomNode';
+import { DrawingToolbar } from './components/DrawingToolbar';
+import { DrawingCanvas } from './components/DrawingCanvas';
 import { ComponentData } from './types';
+import { DrawingTool, DrawnShape } from './types/drawing';
 import { generateExperimentJSON, downloadJSON } from './utils/jsonGenerator';
 import { geminiService } from './utils/geminiService';
 import { EXAMPLE_EXPERIMENTS, EXAMPLE_LIST } from './data/exampleExperiments';
+import { shapeRecognizer } from './utils/shapeRecognition';
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
@@ -38,6 +42,8 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [currentDrawingTool, setCurrentDrawingTool] = useState<DrawingTool | null>(null);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
 
   // Check if user has visited before
   useEffect(() => {
@@ -56,9 +62,13 @@ function App() {
     (params: Connection) => {
       const newEdge = {
         ...params,
-        type: 'default',
+        type: 'smoothstep',
         animated: true,
-        style: { stroke: '#3b82f6', strokeWidth: 2 },
+        style: { 
+          stroke: '#3b82f6', 
+          strokeWidth: 2.5,
+          strokeLinecap: 'round',
+        },
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
@@ -114,8 +124,10 @@ function App() {
   );
 
   const handleRunExperiment = async () => {
-    if (!apiKey) {
-      setShowApiKeyModal(true);
+    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!envApiKey) {
+      alert('Please set VITE_GEMINI_API_KEY in your .env file');
       return;
     }
 
@@ -126,15 +138,15 @@ function App() {
 
     setIsAnalyzing(true);
     setShowResults(true);
-    setAnalysisResult('🔬 Analyzing your experiment...\n\nPlease wait while AI processes your experimental setup.');
+    setAnalysisResult('Analyzing your experiment...\n\nPlease wait while AI processes your experimental setup.');
 
     try {
-      geminiService.setApiKey(apiKey);
+      geminiService.setApiKey(envApiKey);
       const experimentJSON = generateExperimentJSON(nodes, edges);
       const result = await geminiService.analyzeExperiment(experimentJSON);
       setAnalysisResult(result);
     } catch (error: any) {
-      setAnalysisResult(`❌ Error: ${error.message}\n\nPlease check:\n- Your API key is valid\n- You have internet connection\n- The Gemini API is accessible`);
+      setAnalysisResult(`Error: ${error.message}\n\nPlease check:\n- Your API key is valid\n- You have internet connection\n- The Gemini API is accessible`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -168,6 +180,95 @@ function App() {
       setShowResults(false);
     }
   };
+
+  const handleShapeComplete = useCallback((shape: DrawnShape) => {
+    const newNode = shapeRecognizer.convertShapeToNode(shape, shape.label);
+    setNodes((nds) => nds.concat(newNode as Node));
+    setCurrentDrawingTool(null);
+  }, [setNodes]);
+
+  const handleToolSelect = useCallback((tool: DrawingTool | null) => {
+    if (!tool) {
+      setCurrentDrawingTool(null);
+      return;
+    }
+
+    // Get canvas center position
+    const canvasCenter = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    };
+
+    // Prompt for label
+    const label = prompt(`Enter a label for this ${tool}:`, tool.charAt(0).toUpperCase() + tool.slice(1));
+    
+    if (!label || !label.trim()) {
+      return;
+    }
+
+    // Create shape directly at center
+    const size = 100;
+    let points: any[] = [];
+    let bounds = { x: canvasCenter.x - size/2, y: canvasCenter.y - size/2, width: size, height: size };
+
+    switch (tool) {
+      case 'rectangle':
+        points = [
+          { x: bounds.x, y: bounds.y },
+          { x: bounds.x + size, y: bounds.y },
+          { x: bounds.x + size, y: bounds.y + size },
+          { x: bounds.x, y: bounds.y + size },
+          { x: bounds.x, y: bounds.y },
+        ];
+        break;
+      case 'circle':
+        points = [];
+        for (let i = 0; i <= 32; i++) {
+          const angle = (i / 32) * 2 * Math.PI;
+          points.push({
+            x: canvasCenter.x + (size/2) * Math.cos(angle),
+            y: canvasCenter.y + (size/2) * Math.sin(angle),
+          });
+        }
+        break;
+      case 'triangle':
+        points = [
+          { x: canvasCenter.x, y: bounds.y },
+          { x: bounds.x + size, y: bounds.y + size },
+          { x: bounds.x, y: bounds.y + size },
+          { x: canvasCenter.x, y: bounds.y },
+        ];
+        break;
+      case 'line':
+        points = [
+          { x: bounds.x, y: canvasCenter.y },
+          { x: bounds.x + size, y: canvasCenter.y },
+        ];
+        break;
+      case 'arrow':
+        points = [
+          { x: bounds.x, y: canvasCenter.y },
+          { x: bounds.x + size, y: canvasCenter.y },
+        ];
+        break;
+      case 'freehand':
+        // Only freehand requires drawing
+        setCurrentDrawingTool(tool);
+        return;
+    }
+
+    const shape: DrawnShape = {
+      id: `shape_${Date.now()}`,
+      type: tool as any,
+      points,
+      bounds,
+      label: label.trim(),
+      recognized: true,
+    };
+
+    const newNode = shapeRecognizer.convertShapeToNode(shape, shape.label);
+    setNodes((nds) => nds.concat(newNode as Node));
+  }, [setNodes]);
 
   const handleImportJSON = () => {
     const input = document.createElement('input');
@@ -204,6 +305,16 @@ function App() {
 
       {/* Main Canvas */}
       <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
+        <DrawingToolbar 
+          selectedTool={currentDrawingTool} 
+          onToolSelect={handleToolSelect}
+        />
+        
+        <DrawingCanvas 
+          currentTool={currentDrawingTool}
+          onShapeComplete={handleShapeComplete}
+        />
+        
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -218,7 +329,12 @@ function App() {
           fitView
           deleteKeyCode="Delete"
         >
-          <Background />
+          <Background 
+            color="#e5e7eb" 
+            gap={20} 
+            size={1}
+            style={{ backgroundColor: '#f9fafb' }}
+          />
           <Controls />
           <MiniMap />
 
@@ -274,85 +390,115 @@ function App() {
                 Examples
               </button>
 
-              <button
-                onClick={handleDownloadJSON}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 16px',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}
-              >
-                <Download size={16} />
-                Export
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '10px 16px',
+                    backgroundColor: '#6b7280',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                  }}
+                >
+                  <Menu size={16} />
+                </button>
 
-              <button
-                onClick={handleImportJSON}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 16px',
-                  backgroundColor: '#06b6d4',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}
-              >
-                <Upload size={16} />
-                Import
-              </button>
-
-              <button
-                onClick={() => setShowApiKeyModal(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 16px',
-                  backgroundColor: '#6b7280',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}
-              >
-                <Settings size={16} />
-                API Key
-              </button>
-
-              <button
-                onClick={handleClearCanvas}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '10px 16px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                }}
-              >
-                <Trash2 size={16} />
-                Clear
-              </button>
+                {showSettingsMenu && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 0,
+                    marginTop: '8px',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    minWidth: '160px',
+                    zIndex: 1000,
+                    overflow: 'hidden',
+                  }}>
+                    <button
+                      onClick={() => {
+                        handleDownloadJSON();
+                        setShowSettingsMenu(false);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        color: '#374151',
+                        textAlign: 'left',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <Download size={16} />
+                      Export JSON
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleImportJSON();
+                        setShowSettingsMenu(false);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        color: '#374151',
+                        textAlign: 'left',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <Upload size={16} />
+                      Import JSON
+                    </button>
+                    <div style={{ height: '1px', backgroundColor: '#e5e7eb', margin: '4px 0' }} />
+                    <button
+                      onClick={() => {
+                        handleClearCanvas();
+                        setShowSettingsMenu(false);
+                      }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        color: '#ef4444',
+                        textAlign: 'left',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <Trash2 size={16} />
+                      Clear Canvas
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </Panel>
 
@@ -365,12 +511,7 @@ function App() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               maxWidth: '300px',
             }}>
-              <h1 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: 600 }}>
-                AI Experiment Lab
-              </h1>
-              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>
-                Drag components from the library, connect them, and run AI-powered simulations.
-              </p>
+             
               <div style={{
                 marginTop: '12px',
                 padding: '8px',
@@ -387,10 +528,7 @@ function App() {
                 color: '#9ca3af',
                 lineHeight: 1.4,
               }}>
-                💡 <strong>Tips:</strong><br />
-                • Double-click nodes to edit<br />
-                • Click edges to add labels<br />
-                • Press Delete to remove items
+             
               </div>
             </div>
           </Panel>
@@ -478,7 +616,7 @@ function App() {
             boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
           }}>
             <h2 style={{ margin: '0 0 16px 0', fontSize: '24px', fontWeight: 600 }}>
-              Welcome to AI Experiment Lab! 🧪⚡
+              Welcome to AI Experiment Lab!
             </h2>
             <p style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#374151', lineHeight: 1.6 }}>
               Build and simulate complex experiments using a visual canvas powered by AI.
@@ -504,7 +642,7 @@ function App() {
               marginBottom: '20px',
             }}>
               <p style={{ margin: 0, fontSize: '13px', color: '#92400e' }}>
-                <strong>⚠️ Important:</strong> You'll need a Google Gemini API key to run experiments.
+                <strong>Important:</strong> You'll need a Google Gemini API key to run experiments.
                 Get one free at{' '}
                 <a
                   href="https://makersuite.google.com/app/apikey"
@@ -528,7 +666,7 @@ function App() {
                 backgroundColor: '#eff6ff',
                 borderRadius: '8px',
               }}>
-                <div style={{ fontSize: '24px', marginBottom: '4px' }}>⚡</div>
+                <div style={{ marginBottom: '4px', color: '#3b82f6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Electronics</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>300+ components</div>
               </div>
@@ -537,7 +675,7 @@ function App() {
                 backgroundColor: '#f0fdf4',
                 borderRadius: '8px',
               }}>
-                <div style={{ fontSize: '24px', marginBottom: '4px' }}>⚗️</div>
+                <div style={{ marginBottom: '4px', color: '#10b981' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Chemistry</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>200+ components</div>
               </div>
@@ -546,7 +684,7 @@ function App() {
                 backgroundColor: '#faf5ff',
                 borderRadius: '8px',
               }}>
-                <div style={{ fontSize: '24px', marginBottom: '4px' }}>⚙️</div>
+                <div style={{ marginBottom: '4px', color: '#8b5cf6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Physics</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>250+ components</div>
               </div>
@@ -555,7 +693,7 @@ function App() {
                 backgroundColor: '#fffbeb',
                 borderRadius: '8px',
               }}>
-                <div style={{ fontSize: '24px', marginBottom: '4px' }}>💻</div>
+                <div style={{ marginBottom: '4px', color: '#f59e0b' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Coding</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>200+ components</div>
               </div>
