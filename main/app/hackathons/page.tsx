@@ -295,7 +295,7 @@ export default function HackathonsPage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         
         <button

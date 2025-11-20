@@ -117,7 +117,7 @@ export default function SolveChallengePage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>

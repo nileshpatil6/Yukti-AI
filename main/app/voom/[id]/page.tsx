@@ -227,7 +227,7 @@ export default function RoomPage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         
         <button

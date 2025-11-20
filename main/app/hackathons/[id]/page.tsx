@@ -273,7 +273,7 @@ export default function ProblemDetailPage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         
         <button
