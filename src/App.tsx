@@ -13,13 +13,15 @@ import ReactFlow, {
   Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Play, Download, Trash2, BookOpen, Upload, Menu, Undo, Redo } from 'lucide-react';
+import { Play, Download, Trash2, BookOpen, Upload, Menu, Undo, Redo, X, CheckCircle, AlertCircle } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 import { ComponentLibrary } from './components/ComponentLibrary';
 import { CustomNode } from './components/CustomNode';
 import { DrawingToolbar } from './components/DrawingToolbar';
 import { DrawingCanvas } from './components/DrawingCanvas';
-import { ComponentData } from './types';
+import { RobotAssistant } from './components/RobotAssistant';
+import { ComponentData, AnalysisResult } from './types';
 import { DrawingTool, DrawnShape } from './types/drawing';
 import { generateExperimentJSON, downloadJSON } from './utils/jsonGenerator';
 import { geminiService } from './utils/geminiService';
@@ -41,7 +43,7 @@ function App() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [showExamplesModal, setShowExamplesModal] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState('');
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showResults, setShowResults] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
@@ -148,15 +150,30 @@ function App() {
 
     setIsAnalyzing(true);
     setShowResults(true);
-    setAnalysisResult('Analyzing your experiment...\n\nPlease wait while AI processes your experimental setup.');
+    setAnalysisResult(null);
 
     try {
       geminiService.setApiKey(envApiKey);
       const experimentJSON = generateExperimentJSON(nodes, edges);
       const result = await geminiService.analyzeExperiment(experimentJSON);
       setAnalysisResult(result);
+
+      if (result.success) {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899']
+        });
+      }
     } catch (error: any) {
-      setAnalysisResult(`Error: ${error.message}\n\nPlease check:\n- Your API key is valid\n- You have internet connection\n- The Gemini API is accessible`);
+      setAnalysisResult({
+        success: false,
+        title: "System Error",
+        message: error.message || "An unexpected error occurred",
+        mistake: "Failed to communicate with AI service",
+        explanation: "Please check your API key and internet connection."
+      });
     } finally {
       setIsAnalyzing(false);
     }
@@ -176,7 +193,7 @@ function App() {
       takeSnapshot(nodes, edges);
       setNodes([]);
       setEdges([]);
-      setAnalysisResult('');
+      setAnalysisResult(null);
       setShowResults(false);
     }
   };
@@ -188,7 +205,7 @@ function App() {
       setNodes(example.nodes as Node[]);
       setEdges(example.edges as Edge[]);
       setShowExamplesModal(false);
-      setAnalysisResult('');
+      setAnalysisResult(null);
       setShowResults(false);
     }
   };
@@ -311,6 +328,23 @@ function App() {
       }
     };
     input.click();
+  };
+
+  const handleRequestHint = async (userMessage: string): Promise<string> => {
+    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    
+    if (!envApiKey) {
+      return "Oops! I need an API key to help you. Please configure VITE_GEMINI_API_KEY in your .env file. 🔑";
+    }
+
+    try {
+      geminiService.setApiKey(envApiKey);
+      const experimentJSON = generateExperimentJSON(nodes, edges);
+      const hint = await geminiService.getHint(experimentJSON, userMessage);
+      return hint;
+    } catch (error: any) {
+      return "Sorry, I'm having trouble thinking right now. Can you try asking again? 🤔";
+    }
   };
 
   return (
@@ -594,59 +628,190 @@ function App() {
         </ReactFlow>
       </div>
 
-      {/* Results Panel */}
+      {/* Results Modal */}
       {showResults && (
         <div style={{
-          width: '400px',
-          height: '100vh',
-          backgroundColor: '#f9fafb',
-          borderLeft: '1px solid #e5e7eb',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
           display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          backdropFilter: 'blur(4px)',
         }}>
           <div style={{
-            padding: '20px',
-            borderBottom: '1px solid #e5e7eb',
+            backgroundColor: 'white',
+            width: '90%',
+            height: '90%',
+            borderRadius: '16px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            position: 'relative',
           }}>
-            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>
-              Analysis Results
-            </h2>
-            <button
-              onClick={() => setShowResults(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#6b7280',
-                lineHeight: 1,
-              }}
-            >
-              ×
-            </button>
-          </div>
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: '20px',
-          }}>
+            {/* Header */}
             <div style={{
-              backgroundColor: 'white',
-              padding: '16px',
-              borderRadius: '8px',
-              border: '1px solid #e5e7eb',
-              fontSize: '14px',
-              lineHeight: 1.6,
-              whiteSpace: 'pre-wrap',
-              fontFamily: 'system-ui, sans-serif',
+              padding: '20px 30px',
+              borderBottom: '1px solid #e5e7eb',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: analysisResult?.success ? '#f0fdf4' : (analysisResult ? '#fef2f2' : 'white'),
             }}>
-              {analysisResult}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {analysisResult ? (
+                  analysisResult.success ? (
+                    <CheckCircle size={32} color="#10b981" />
+                  ) : (
+                    <AlertCircle size={32} color="#ef4444" />
+                  )
+                ) : (
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    border: '3px solid #e5e7eb', 
+                    borderTopColor: '#3b82f6', 
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                )}
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#111827' }}>
+                    {analysisResult ? analysisResult.title : 'Analyzing Experiment...'}
+                  </h2>
+                  {analysisResult && (
+                    <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+                      {analysisResult.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setShowResults(false)}
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.color = '#111827';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '30px',
+              display: 'flex',
+              gap: '30px',
+              backgroundColor: '#f9fafb',
+            }}>
+              {analysisResult ? (
+                <>
+                  {/* Left Column: Explanation / Mistake */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {analysisResult.success ? (
+                      <div style={{
+                        backgroundColor: 'white',
+                        padding: '24px',
+                        borderRadius: '12px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                      }}>
+                        <h3 style={{ marginTop: 0, fontSize: '18px', fontWeight: 600, color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          🎉 Congratulations!
+                        </h3>
+                        <div style={{ fontSize: '16px', lineHeight: 1.6, color: '#374151', whiteSpace: 'pre-wrap' }}>
+                          {analysisResult.explanation}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{
+                        backgroundColor: '#fef2f2',
+                        padding: '24px',
+                        borderRadius: '12px',
+                        border: '1px solid #fecaca',
+                      }}>
+                        <h3 style={{ marginTop: 0, fontSize: '18px', fontWeight: 600, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          ❌ Experiment Failed
+                        </h3>
+                        <div style={{ fontSize: '16px', lineHeight: 1.6, color: '#991b1b' }}>
+                          <strong>Mistake:</strong> {analysisResult.mistake}
+                        </div>
+                        <div style={{ marginTop: '16px', fontSize: '14px', color: '#7f1d1d', fontStyle: 'italic' }}>
+                          Review your connections and component properties to fix the issue.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right Column: Visualization */}
+                  {analysisResult.success && analysisResult.svg && (
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{
+                        backgroundColor: 'white',
+                        padding: '24px',
+                        borderRadius: '12px',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: '#374151' }}>
+                          Visual Output
+                        </h3>
+                        <div 
+                          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', overflow: 'hidden' }}
+                          dangerouslySetInnerHTML={{ __html: analysisResult.svg }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+                  <div style={{ 
+                    width: '60px', 
+                    height: '60px', 
+                    border: '6px solid #e5e7eb', 
+                    borderTopColor: '#3b82f6', 
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                  <div style={{ fontSize: '18px', color: '#6b7280', fontWeight: 500 }}>Processing your experiment...</div>
+                </div>
+              )}
             </div>
           </div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
         </div>
       )}
 
@@ -977,6 +1142,12 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Robot Assistant Chatbot */}
+      <RobotAssistant 
+        experimentJSON={generateExperimentJSON(nodes, edges)}
+        onRequestHint={handleRequestHint}
+      />
     </div>
   );
 }
