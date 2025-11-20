@@ -315,6 +315,7 @@ export default function DashboardPage() {
             transition: "all 0.3s ease",
             cursor: "pointer"
           }}
+          onClick={() => router.push("/hackathons")}
           onMouseOver={(e) => {
             e.currentTarget.style.transform = "translateY(-8px)";
             e.currentTarget.style.boxShadow = "0 15px 40px rgba(253,29,29,0.3)";
