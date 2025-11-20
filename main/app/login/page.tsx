@@ -3,6 +3,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,145 +30,87 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: "20px"
-    }}>
-        <div style={{
-            backgroundColor: "white",
-            padding: "40px",
-            borderRadius: "16px",
-            maxWidth: "450px",
-            width: "100%",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
-        }}>
-            <h1 style={{
-                fontSize: "32px",
-                fontWeight: "700",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                marginBottom: "0.5rem",
-                textAlign: "center"
-            }}>🔐 Welcome Back</h1>
-            <p style={{ textAlign: "center", color: "#666", marginBottom: "2rem" }}>Sign in to continue to your account</p>
+    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center px-8 py-20 transition-colors duration-500">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-2xl p-10">
+          <h1 className="font-serif text-4xl text-zinc-950 dark:text-white mb-3 text-center">
+            Welcome Back
+          </h1>
+          <p className="font-sans text-zinc-600 dark:text-zinc-400 text-center mb-10">
+            Sign in to continue your learning journey
+          </p>
 
-            <button 
-                onClick={googleLogin}
-                style={{
-                    width: "100%",
-                    padding: "14px 20px",
-                    backgroundColor: "#4285f4",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    marginBottom: 20,
-                    boxShadow: "0 4px 15px rgba(66,133,244,0.3)",
-                    transition: "all 0.3s ease"
-                }}
-                onMouseOver={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 6px 20px rgba(66,133,244,0.4)";
-                }}
-                onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 4px 15px rgba(66,133,244,0.3)";
-                }}
-            >
-                🔍 Login with Google
-            </button>
+          <button 
+            onClick={googleLogin}
+            className="w-full px-6 py-4 bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white border border-zinc-200 dark:border-zinc-700 rounded-lg font-sans font-medium hover:border-accent/50 transition-all duration-500 mb-6 hover:scale-[1.02]"
+          >
+            Continue with Google
+          </button>
 
-            <div style={{ textAlign: "center", margin: "25px 0", color: "#999", fontSize: "14px", position: "relative" }}>
-                <span style={{ backgroundColor: "white", padding: "0 10px", position: "relative", zIndex: 1 }}>OR</span>
-                <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: "1px", backgroundColor: "#e1e8ed", zIndex: 0 }}></div>
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-200 dark:border-zinc-800"></div>
             </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-zinc-50/80 dark:bg-zinc-900/50 font-mono text-zinc-500 dark:text-zinc-600">
+                or
+              </span>
+            </div>
+          </div>
 
-            <input 
-                type="email" 
-                placeholder="📧 Email Address" 
-                onChange={(e) => setEmail(e.target.value)}
-                style={{
-                    width: "100%",
-                    padding: "14px 16px",
-                    marginBottom: 14,
-                    border: "2px solid #e1e8ed",
-                    borderRadius: 8,
-                    fontSize: 16,
-                    outline: "none",
-                    transition: "border-color 0.3s ease",
-                    boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e1e8ed"}
-            />
+          <input 
+            type="email" 
+            placeholder="Email address" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-5 py-4 mb-4 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg font-sans text-zinc-950 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:border-accent/50 focus:outline-none transition-all duration-500"
+          />
 
-            <input 
-                type="password" 
-                placeholder="🔒 Password" 
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                    width: "100%",
-                    padding: "14px 16px",
-                    marginBottom: 25,
-                    border: "2px solid #e1e8ed",
-                    borderRadius: 8,
-                    fontSize: 16,
-                    outline: "none",
-                    transition: "border-color 0.3s ease",
-                    boxSizing: "border-box"
-                }}
-                onFocus={(e) => e.currentTarget.style.borderColor = "#667eea"}
-                onBlur={(e) => e.currentTarget.style.borderColor = "#e1e8ed"}
-            />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-5 py-4 mb-8 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg font-sans text-zinc-950 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:border-accent/50 focus:outline-none transition-all duration-500"
+          />
 
-            <button 
-                onClick={login}
-                style={{
-                    width: "100%",
-                    padding: "14px 20px",
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    fontSize: 16,
-                    fontWeight: "600",
-                    boxShadow: "0 4px 15px rgba(102,126,234,0.4)",
-                    transition: "all 0.3s ease"
-                }}
-                onMouseOver={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 6px 20px rgba(102,126,234,0.5)";
-                }}
-                onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 4px 15px rgba(102,126,234,0.4)";
-                }}
+          <motion.button 
+            onClick={login}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full px-6 py-4 bg-accent text-white font-sans font-medium rounded-lg hover:bg-accent/90 transition-all duration-500 shadow-lg hover:shadow-xl border border-accent/20"
+          >
+            Sign In
+          </motion.button>
+
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 px-5 py-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-lg"
             >
-                ✨ Sign In
-            </button>
-
-            {error && <div style={{
-                marginTop: 15,
-                padding: "12px",
-                backgroundColor: "#fee",
-                color: "#c33",
-                borderRadius: 8,
-                fontSize: "14px",
-                textAlign: "center"
-            }}>⚠️ {error}</div>}
-            
-            <p style={{ textAlign: "center", marginTop: 25, color: "#666", fontSize: "15px" }}>
-                Don't have an account? <a href="/signup" style={{ color: "#667eea", fontWeight: "600", textDecoration: "none" }}>Sign up →</a>
-            </p>
+              <p className="font-sans text-sm text-red-800 dark:text-red-400 text-center">
+                {error}
+              </p>
+            </motion.div>
+          )}
+          
+          <p className="font-sans text-center mt-8 text-zinc-600 dark:text-zinc-400">
+            Don't have an account?{" "}
+            <a 
+              href="/signup" 
+              className="text-accent hover:text-accent/80 font-medium transition-colors duration-500"
+            >
+              Sign up
+            </a>
+          </p>
         </div>
+      </motion.div>
     </div>
   );
 }
