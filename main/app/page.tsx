@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950 transition-colors duration-500">
+    <main className="min-h-screen bg-white">
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-8 py-32">
         <motion.div 
@@ -14,10 +14,10 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="text-center mb-20"
         >
-          <h1 className="font-serif text-7xl md:text-8xl font-normal text-zinc-950 dark:text-white mb-8 tracking-tight">
-            Quadbits
+          <h1 className="font-serif text-7xl md:text-8xl font-normal text-zinc-900 mb-8 tracking-tight">
+            CodeBharat
           </h1>
-          <p className="font-sans text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed mb-16">
+          <p className="font-sans text-xl md:text-2xl text-zinc-600 max-w-3xl mx-auto leading-relaxed mb-16">
             Academic excellence meets interactive learning. Build experiments, solve challenges, and master concepts through visual programming.
           </p>
 
@@ -26,7 +26,7 @@ export default function Home() {
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-12 py-4 bg-accent text-white font-sans font-medium text-lg rounded-lg hover:bg-accent/90 transition-all duration-500 shadow-lg hover:shadow-xl border border-accent/20"
+                className="px-12 py-4 bg-orange-500 text-white font-sans font-medium text-lg rounded-lg hover:bg-orange-600 transition-all duration-300 shadow-lg"
               >
                 Create Account
               </motion.button>
@@ -35,7 +35,7 @@ export default function Home() {
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-12 py-4 bg-transparent text-zinc-950 dark:text-white font-sans font-medium text-lg rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-accent/50 transition-all duration-500"
+                className="px-12 py-4 bg-white text-zinc-900 font-sans font-medium text-lg rounded-lg border border-zinc-200 hover:border-orange-200 transition-all duration-300"
               >
                 Sign In
               </motion.button>
@@ -71,11 +71,11 @@ export default function Home() {
               transition={{ delay: 0.4 + idx * 0.1, duration: 0.6 }}
               className="group"
             >
-              <div className="bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-xl p-8 h-full hover:border-accent/30 transition-all duration-500 hover:shadow-lg">
-                <h3 className="font-serif text-2xl text-zinc-950 dark:text-white mb-4">
+              <div className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-xl p-8 h-full hover:border-orange-200 transition-all duration-300 hover:shadow-lg">
+                <h3 className="font-serif text-2xl text-zinc-900 mb-4">
                   {feature.title}
                 </h3>
-                <p className="font-sans text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p className="font-sans text-zinc-600 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -85,9 +85,9 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-zinc-200 dark:border-zinc-800 mt-32">
+      <div className="border-t border-zinc-200 mt-32">
         <div className="max-w-7xl mx-auto px-8 py-12 text-center">
-          <p className="font-mono text-sm text-zinc-500 dark:text-zinc-600">
+          <p className="font-mono text-sm text-zinc-500">
             Academic Futurism Design System
           </p>
         </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
+import { Code, Trophy, Zap, Target, LogOut, User } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
@@ -64,165 +65,197 @@ export default function DashboardPage() {
     setSaving(false);
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }
+    }
+  };
+
+  const cards = [
+    {
+      title: "Playground",
+      description: "Experiment with code and test algorithms in our interactive coding environment.",
+      icon: Code,
+      path: "http://localhost:5000",
+      external: true
+    },
+    {
+      title: "Challenges",
+      description: "Test your skills with curated coding challenges from beginner to advanced levels.",
+      icon: Trophy,
+      path: "/challenges",
+      external: false
+    },
+    {
+      title: "Hackathons",
+      description: "Join global research hackathons and solve real-world problems posted by scientists.",
+      icon: Zap,
+      path: "/hackathons",
+      external: false
+    },
+    {
+      title: "Voom",
+      description: "Enter 24-hour challenge rooms and compete on live leaderboards across topics.",
+      icon: Target,
+      path: "/voom",
+      external: false
+    }
+  ];
+
   if (loading) return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center transition-colors duration-500">
-      <div className="bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-xl p-8">
-        <p className="font-sans text-zinc-950 dark:text-white">Loading...</p>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-orange-500 border-r-transparent"></div>
+        <p className="mt-4 font-mono text-sm text-zinc-500">LOADING SYSTEM</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 transition-colors duration-500">
-      {/* Navigation Bar */}
-      <nav className="bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-8 py-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="font-serif text-3xl text-zinc-950 dark:text-white">
-            Quadbits
-          </h1>
-          
-          <div className="flex items-center gap-6">
-            <div className="px-5 py-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
-              <span className="font-sans text-sm text-zinc-600 dark:text-zinc-400">
-                {userProfile?.name || user?.email}
-              </span>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="border-b border-zinc-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-serif text-2xl text-zinc-900">Yukti-AI</h1>
+              <p className="font-mono text-xs text-zinc-500 mt-0.5">LEARNING ECOSYSTEM</p>
             </div>
-            <motion.button 
-              onClick={logout}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-5 py-2 bg-red-500 text-white font-sans text-sm font-medium rounded-lg hover:bg-red-600 transition-colors duration-500"
-            >
-              Logout
-            </motion.button>
+            
+            <div className="flex items-center gap-4">
+              {userProfile && (
+                <div className="flex items-center gap-3 px-4 py-2 bg-zinc-50 border border-zinc-200 rounded-lg">
+                  <User className="w-4 h-4 text-zinc-500" />
+                  <span className="font-sans text-sm text-zinc-900">{userProfile.name}</span>
+                </div>
+              )}
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-orange-500 transition-colors duration-300 font-sans text-sm"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-12">
-        {/* Profile Section */}
-        {userProfile && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 mb-12"
-          >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <p className="font-mono text-xs text-zinc-500 dark:text-zinc-600 mb-2">NAME</p>
-                <p className="font-sans text-lg font-medium text-zinc-950 dark:text-white">{userProfile.name}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-mono text-xs text-zinc-500 dark:text-zinc-600 mb-2">AGE</p>
-                <p className="font-sans text-lg font-medium text-zinc-950 dark:text-white">{userProfile.age}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-mono text-xs text-zinc-500 dark:text-zinc-600 mb-2">EMAIL</p>
-                <p className="font-sans text-lg font-medium text-zinc-950 dark:text-white truncate">{userProfile.email}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-mono text-xs text-zinc-500 dark:text-zinc-600 mb-2">PROVIDER</p>
-                <p className="font-sans text-lg font-medium text-zinc-950 dark:text-white">{user?.providerData[0]?.providerId}</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
+      {/* Hero Section */}
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-7xl mx-auto px-6 py-16"
+      >
+        <motion.div variants={itemVariants} className="text-center mb-12">
+          <h2 className="font-serif text-5xl text-zinc-900 mb-4">
+            Learning Ecosystem
+          </h2>
+          <p className="font-sans text-lg text-zinc-600 max-w-2xl mx-auto">
+            Master computational thinking through interactive challenges and collaborative problem-solving
+          </p>
+        </motion.div>
 
-        {/* Main Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            {
-              title: "Playground",
-              description: "Build visual experiments with drag-and-drop components. Get real-time AI feedback.",
-              action: () => window.open("http://localhost:5000", "_blank"),
-              buttonText: "Start Building"
-            },
-            {
-              title: "Challenges",
-              description: "Topic-based learning challenges. AI guides you without giving away answers.",
-              action: () => router.push("/challenges"),
-              buttonText: "View Challenges"
-            },
-            {
-              title: "Hackathons",
-              description: "Join collaborative coding events. Build projects and compete for prizes.",
-              action: () => router.push("/hackathons"),
-              buttonText: "Browse Events"
-            },
-            {
-              title: "Voom Rooms",
-              description: "24-hour challenge rooms on different topics. Compete and climb leaderboards.",
-              action: () => router.push("/voom"),
-              buttonText: "Enter Rooms"
-            }
-          ].map((card, idx) => (
+        {/* Cards Grid */}
+        <motion.div 
+          variants={itemVariants}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          {cards.map((card) => (
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + idx * 0.1, duration: 0.6 }}
-              whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              onClick={card.action}
-              className="group bg-zinc-50/80 dark:bg-zinc-900/50 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 hover:border-accent/30 transition-all duration-500 cursor-pointer hover:shadow-xl"
+              key={card.title}
+              whileHover={{ y: -4 }}
+              onClick={() => card.external ? window.open(card.path, '_blank') : router.push(card.path)}
+              className="group relative bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-8 cursor-pointer hover:border-orange-200 transition-all duration-300 overflow-hidden"
             >
-              <h3 className="font-serif text-2xl text-zinc-950 dark:text-white mb-4">
-                {card.title}
-              </h3>
-              <p className="font-sans text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
-                {card.description}
-              </p>
-              <button className="w-full px-6 py-3 bg-transparent text-accent border border-accent/30 rounded-lg font-sans font-medium group-hover:bg-accent group-hover:text-white transition-all duration-500">
-                {card.buttonText}
-              </button>
+              {/* Subtle gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-50/0 to-orange-50/0 group-hover:from-orange-50/30 group-hover:to-orange-50/10 transition-all duration-300" />
+              
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-center mb-6 group-hover:border-orange-200 group-hover:bg-orange-50 transition-all duration-300">
+                  <card.icon className="w-6 h-6 text-zinc-700 group-hover:text-orange-500 transition-colors duration-300" />
+                </div>
+
+                {/* Content */}
+                <h3 className="font-serif text-2xl text-zinc-900 mb-3">
+                  {card.title}
+                </h3>
+                <p className="font-sans text-zinc-600 leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
             </motion.div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
+      {/* Profile Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-10 max-w-md w-[90%] shadow-2xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white border border-zinc-200 rounded-2xl p-8 max-w-md w-[90%] shadow-2xl"
           >
-            <h2 className="font-serif text-3xl text-zinc-950 dark:text-white mb-3">
+            <h2 className="font-serif text-3xl text-zinc-900 mb-2">
               Complete Profile
             </h2>
-            <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-8">
+            <p className="font-sans text-zinc-600 mb-8">
               Please provide your information to continue
             </p>
             
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-5 py-4 mb-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg font-sans text-zinc-950 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:border-accent/50 focus:outline-none transition-all duration-500"
-            />
+            <div className="space-y-4">
+              <div>
+                <label className="font-mono text-xs text-zinc-500 uppercase tracking-wider block mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-lg font-sans text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none transition-colors"
+                />
+              </div>
+              
+              <div>
+                <label className="font-mono text-xs text-zinc-500 uppercase tracking-wider block mb-2">
+                  Age
+                </label>
+                <input
+                  type="number"
+                  placeholder="Enter your age"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-lg font-sans text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
             
-            <input
-              type="number"
-              placeholder="Age"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              className="w-full px-5 py-4 mb-8 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg font-sans text-zinc-950 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:border-accent/50 focus:outline-none transition-all duration-500"
-            />
-            
-            <motion.button
+            <button
               onClick={saveProfile}
               disabled={!name || !age || saving}
-              whileHover={name && age ? { scale: 1.02 } : {}}
-              whileTap={name && age ? { scale: 0.98 } : {}}
-              className={`w-full px-6 py-4 font-sans font-medium rounded-lg transition-all duration-500 ${
+              className={`w-full px-6 py-3 mt-8 font-sans font-medium rounded-lg transition-all duration-300 ${
                 name && age 
-                  ? 'bg-accent text-white hover:bg-accent/90 shadow-lg hover:shadow-xl border border-accent/20 cursor-pointer' 
-                  : 'bg-zinc-300 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-600 cursor-not-allowed'
+                  ? 'bg-orange-500 text-white hover:bg-orange-600 cursor-pointer' 
+                  : 'bg-zinc-200 text-zinc-400 cursor-not-allowed'
               }`}
             >
               {saving ? "Saving..." : "Save Profile"}
-            </motion.button>
+            </button>
           </motion.div>
         </div>
       )}

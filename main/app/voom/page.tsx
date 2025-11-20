@@ -4,6 +4,38 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { updateRoomStatuses, Room } from "@/lib/voomData";
+import { motion } from "framer-motion";
+import { 
+  Binary, 
+  Globe, 
+  Brain, 
+  Code2, 
+  Database, 
+  Layout, 
+  Network, 
+  Cloud,
+  Search,
+  Filter,
+  Clock,
+  Users,
+  Trophy,
+  Target,
+  Calendar,
+  ArrowLeft
+} from "lucide-react";
+
+// Topic icon mapping
+const getTopicIcon = (topic: string) => {
+  if (topic.includes("Data Structures")) return Binary;
+  if (topic.includes("Web Development")) return Globe;
+  if (topic.includes("Machine Learning")) return Brain;
+  if (topic.includes("Python")) return Code2;
+  if (topic.includes("Database")) return Database;
+  if (topic.includes("React")) return Layout;
+  if (topic.includes("System Design")) return Network;
+  if (topic.includes("DevOps")) return Cloud;
+  return Target;
+};
 
 export default function VoomPage() {
   const { user, loading } = useAuth();
@@ -31,9 +63,9 @@ export default function VoomPage() {
 
   const difficulties = ["All", "Easy", "Medium", "Hard"];
   const statuses = [
-    { value: "active", label: "🟢 Active" },
-    { value: "upcoming", label: "🟡 Upcoming" },
-    { value: "ended", label: "🔴 Ended" }
+    { value: "active", label: "Active", icon: Clock },
+    { value: "upcoming", label: "Upcoming", icon: Calendar },
+    { value: "ended", label: "Ended", icon: Trophy }
   ];
 
   const filteredRooms = rooms.filter(room => {
@@ -56,10 +88,30 @@ export default function VoomPage() {
 
   const getStatusBadge = (status: string) => {
     switch(status) {
-      case "active": return { bg: "#d4edda", color: "#155724", text: "🟢 Live Now" };
-      case "upcoming": return { bg: "#fff3cd", color: "#856404", text: "🟡 Coming Soon" };
-      case "ended": return { bg: "#f8d7da", color: "#721c24", text: "🔴 Ended" };
-      default: return { bg: "#e2e3e5", color: "#383d41", text: "Unknown" };
+      case "active": return { 
+        bgClass: "bg-green-50 border-green-200", 
+        textClass: "text-green-700", 
+        text: "Live Now",
+        icon: Clock
+      };
+      case "upcoming": return { 
+        bgClass: "bg-orange-50 border-orange-200", 
+        textClass: "text-orange-700", 
+        text: "Coming Soon",
+        icon: Calendar
+      };
+      case "ended": return { 
+        bgClass: "bg-zinc-100 border-zinc-200", 
+        textClass: "text-zinc-600", 
+        text: "Ended",
+        icon: Trophy
+      };
+      default: return { 
+        bgClass: "bg-zinc-100 border-zinc-200", 
+        textClass: "text-zinc-600", 
+        text: "Unknown",
+        icon: Target
+      };
     }
   };
 
@@ -80,343 +132,266 @@ export default function VoomPage() {
     return `${hours}h ${minutes}m left`;
   };
 
+  // Calculate stats
+  const activeRoomsCount = rooms.filter(r => r.status === "active").length;
+  const totalParticipants = rooms.reduce((sum, r) => sum + r.active_users, 0);
+  const totalChallenges = rooms.reduce((sum, r) => sum + r.total_questions, 0);
+
   if (loading) return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
-      <div style={{
-        padding: "2rem",
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.1)"
-      }}>
-        <p style={{ fontSize: "18px", color: "#667eea" }}>Loading...</p>
-      </div>
+    <div className="min-h-screen flex justify-center items-center bg-white">
+      <motion.div 
+        className="p-8 bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-lg"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <p className="text-lg font-sans text-orange-500">Loading...</p>
+      </motion.div>
     </div>
   );
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav style={{
-        backgroundColor: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        padding: "1rem 2rem",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <div style={{
-          fontSize: "24px",
-          fontWeight: "700",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          cursor: "pointer"
-        }}
-        onClick={() => router.push("/dashboard")}
+      <nav className="bg-white/60 backdrop-blur-md border-b border-zinc-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
+        <motion.div 
+          className="text-2xl font-serif font-bold text-zinc-900 cursor-pointer hover:text-orange-500 transition-colors"
+          onClick={() => router.push("/dashboard")}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          🚀 CodeBharat
-        </div>
+          Yukti-AI
+        </motion.div>
         
         <button
           onClick={() => router.push("/dashboard")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "600"
-          }}
+          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white border border-orange-600 rounded-lg font-sans font-semibold text-sm transition-all"
         >
-          ← Back to Dashboard
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
         </button>
       </nav>
 
-      {/* Header */}
-      <div style={{
-        padding: "3rem 2rem",
-        textAlign: "center",
-        color: "white"
-      }}>
-        <h1 style={{
-          fontSize: "48px",
-          fontWeight: "800",
-          marginBottom: "1rem",
-          textShadow: "0 2px 10px rgba(0,0,0,0.2)"
-        }}>
-          🎯 Voom Challenge Rooms
-        </h1>
-        <p style={{
-          fontSize: "20px",
-          opacity: 0.95,
-          maxWidth: "800px",
-          margin: "0 auto"
-        }}>
+      {/* Hero Header */}
+      <motion.div 
+        className="py-16 px-8 text-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <Target className="w-12 h-12 text-orange-500" />
+          <h1 className="text-5xl font-serif font-bold text-zinc-900">
+            Voom Challenge Rooms
+          </h1>
+        </div>
+        <p className="text-xl font-sans text-zinc-600 max-w-3xl mx-auto">
           Join 24-hour challenge rooms, solve questions, and compete on the leaderboard!
         </p>
-      </div>
+      </motion.div>
 
-      <div style={{
-        maxWidth: "1400px",
-        margin: "0 auto",
-        padding: "0 2rem 2rem"
-      }}>
+      <div className="max-w-7xl mx-auto px-8 pb-16">
+        {/* Stats Section */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <div className="bg-white/60 backdrop-blur-md border border-zinc-200 hover:border-orange-200 rounded-2xl p-6 text-center transition-all">
+            <Clock className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+            <div className="text-3xl font-serif font-bold text-zinc-900">{activeRoomsCount}</div>
+            <div className="text-sm font-mono text-zinc-600 uppercase tracking-wider">Active Rooms</div>
+          </div>
+          <div className="bg-white/60 backdrop-blur-md border border-zinc-200 hover:border-orange-200 rounded-2xl p-6 text-center transition-all">
+            <Users className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+            <div className="text-3xl font-serif font-bold text-zinc-900">{totalParticipants}</div>
+            <div className="text-sm font-mono text-zinc-600 uppercase tracking-wider">Participants</div>
+          </div>
+          <div className="bg-white/60 backdrop-blur-md border border-zinc-200 hover:border-orange-200 rounded-2xl p-6 text-center transition-all">
+            <Trophy className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+            <div className="text-3xl font-serif font-bold text-zinc-900">{totalChallenges}</div>
+            <div className="text-sm font-mono text-zinc-600 uppercase tracking-wider">Total Challenges</div>
+          </div>
+        </motion.div>
+
         {/* Search and Filters */}
-        <div style={{
-          backgroundColor: "rgba(255,255,255,0.95)",
-          borderRadius: "16px",
-          padding: "1.5rem",
-          marginBottom: "2rem",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-        }}>
+        <motion.div 
+          className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-6 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           {/* Search Bar */}
-          <input
-            type="text"
-            placeholder="🔍 Search rooms by topic..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "1rem 1.5rem",
-              fontSize: "16px",
-              border: "2px solid #e1e8ed",
-              borderRadius: "12px",
-              outline: "none",
-              marginBottom: "1.5rem",
-              boxSizing: "border-box"
-            }}
-          />
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search rooms by topic..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 font-sans text-zinc-900 bg-white border-2 border-zinc-200 focus:border-orange-500 rounded-xl outline-none transition-colors"
+            />
+          </div>
 
           {/* Status Filter */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ fontWeight: "600", color: "#333", marginBottom: "0.5rem", display: "block" }}>
+          <div className="mb-6">
+            <label className="flex items-center gap-2 font-mono text-sm font-semibold text-zinc-700 uppercase tracking-wider mb-3">
+              <Filter className="w-4 h-4" />
               Status
             </label>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              {statuses.map(status => (
-                <button
-                  key={status.value}
-                  onClick={() => setSelectedStatus(status.value)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: selectedStatus === status.value ? "2px solid #667eea" : "2px solid #e1e8ed",
-                    backgroundColor: selectedStatus === status.value ? "#667eea" : "white",
-                    color: selectedStatus === status.value ? "white" : "#333",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    transition: "all 0.2s"
-                  }}
-                >
-                  {status.label}
-                </button>
-              ))}
+            <div className="flex gap-2 flex-wrap">
+              {statuses.map(status => {
+                const StatusIcon = status.icon;
+                return (
+                  <button
+                    key={status.value}
+                    onClick={() => setSelectedStatus(status.value)}
+                    className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg font-sans font-medium text-sm transition-all ${
+                      selectedStatus === status.value
+                        ? "border-orange-500 bg-orange-500 text-white"
+                        : "border-zinc-200 bg-white text-zinc-700 hover:border-orange-200"
+                    }`}
+                  >
+                    <StatusIcon className="w-4 h-4" />
+                    {status.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Difficulty Filter */}
           <div>
-            <label style={{ fontWeight: "600", color: "#333", marginBottom: "0.5rem", display: "block" }}>
+            <label className="flex items-center gap-2 font-mono text-sm font-semibold text-zinc-700 uppercase tracking-wider mb-3">
+              <Target className="w-4 h-4" />
               Difficulty
             </label>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div className="flex gap-2">
               {difficulties.map(difficulty => (
                 <button
                   key={difficulty}
                   onClick={() => setSelectedDifficulty(difficulty)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: selectedDifficulty === difficulty ? "2px solid #667eea" : "2px solid #e1e8ed",
-                    backgroundColor: selectedDifficulty === difficulty ? "#667eea" : "white",
-                    color: selectedDifficulty === difficulty ? "white" : "#333",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    transition: "all 0.2s"
-                  }}
+                  className={`px-4 py-2 border-2 rounded-lg font-sans font-medium text-sm transition-all ${
+                    selectedDifficulty === difficulty
+                      ? "border-orange-500 bg-orange-500 text-white"
+                      : "border-zinc-200 bg-white text-zinc-700 hover:border-orange-200"
+                  }`}
                 >
                   {difficulty}
                 </button>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Results Count */}
-        <div style={{
-          color: "white",
-          fontSize: "18px",
-          fontWeight: "600",
-          marginBottom: "1.5rem",
-          textAlign: "center"
-        }}>
-          {filteredRooms.length} Room{filteredRooms.length !== 1 ? 's' : ''} Available
+        <div className="text-center mb-6">
+          <p className="text-lg font-sans font-semibold text-zinc-900">
+            {filteredRooms.length} Room{filteredRooms.length !== 1 ? 's' : ''} Available
+          </p>
         </div>
 
         {/* Rooms Grid */}
         {loadingRooms ? (
-          <div style={{ textAlign: "center", color: "white", fontSize: "18px", padding: "3rem" }}>
-            Loading rooms...
+          <div className="text-center py-12">
+            <p className="text-lg font-sans text-zinc-600">Loading rooms...</p>
           </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-            gap: "1.5rem"
-          }}>
-            {filteredRooms.map(room => {
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {filteredRooms.map((room, index) => {
               const statusBadge = getStatusBadge(room.status);
+              const StatusIcon = statusBadge.icon;
+              const TopicIcon = getTopicIcon(room.topic);
+              const isClickable = room.status === "active";
+
               return (
-                <div
+                <motion.div
                   key={room.id}
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "16px",
-                    padding: "1.5rem",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                    transition: "all 0.3s ease",
-                    cursor: room.status === "active" ? "pointer" : "default",
-                    opacity: room.status === "ended" ? 0.7 : 1,
-                    display: "flex",
-                    flexDirection: "column"
+                  className={`bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-6 transition-all flex flex-col ${
+                    isClickable ? "cursor-pointer hover:border-orange-200 hover:-translate-y-2 hover:shadow-xl" : "opacity-70"
+                  } ${room.status === "ended" ? "opacity-60" : ""}`}
+                  onClick={() => isClickable && router.push(`/voom/${room.id}`)}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 }
                   }}
-                  onClick={() => room.status === "active" && router.push(`/voom/${room.id}`)}
-                  onMouseOver={(e) => {
-                    if (room.status === "active") {
-                      e.currentTarget.style.transform = "translateY(-8px)";
-                      e.currentTarget.style.boxShadow = "0 15px 40px rgba(102,126,234,0.4)";
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
-                  }}
+                  whileHover={isClickable ? { scale: 1.02 } : {}}
+                  whileTap={isClickable ? { scale: 0.98 } : {}}
                 >
                   {/* Status Badge */}
-                  <div style={{
-                    display: "inline-block",
-                    padding: "0.5rem 1rem",
-                    backgroundColor: statusBadge.bg,
-                    color: statusBadge.color,
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    marginBottom: "1rem",
-                    alignSelf: "flex-start"
-                  }}>
+                  <div className={`inline-flex items-center gap-2 self-start px-3 py-1.5 ${statusBadge.bgClass} border ${statusBadge.textClass} rounded-lg text-xs font-mono font-semibold uppercase tracking-wider mb-4`}>
+                    <StatusIcon className="w-3 h-3" />
                     {statusBadge.text}
                   </div>
 
                   {/* Room Header */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-                    <div style={{
-                      fontSize: "40px",
-                      width: "60px",
-                      height: "60px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-                      borderRadius: "12px"
-                    }}>
-                      {room.icon}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl shadow-lg">
+                      <TopicIcon className="w-7 h-7 text-white" />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{
-                        fontSize: "20px",
-                        fontWeight: "700",
-                        color: "#333",
-                        marginBottom: "0.25rem"
-                      }}>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-serif font-bold text-zinc-900 mb-1">
                         {room.topic}
                       </h3>
-                      <span style={{
-                        padding: "0.25rem 0.75rem",
-                        backgroundColor: getDifficultyColor(room.difficulty),
-                        color: "white",
-                        borderRadius: "6px",
-                        fontSize: "11px",
-                        fontWeight: "600"
-                      }}>
+                      <span className={`inline-block px-3 py-1 rounded-lg text-xs font-mono font-semibold text-white ${
+                        room.difficulty === "Easy" ? "bg-green-500" :
+                        room.difficulty === "Medium" ? "bg-orange-500" :
+                        "bg-red-500"
+                      }`}>
                         {room.difficulty}
                       </span>
                     </div>
                   </div>
 
                   {/* Description */}
-                  <p style={{
-                    fontSize: "14px",
-                    color: "#666",
-                    lineHeight: "1.6",
-                    marginBottom: "1rem",
-                    flexGrow: 1
-                  }}>
+                  <p className="text-sm font-sans text-zinc-600 leading-relaxed mb-4 flex-grow">
                     {room.description}
                   </p>
 
                   {/* Stats */}
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "1rem",
-                    marginBottom: "1rem",
-                    padding: "1rem",
-                    backgroundColor: "#f8f9fa",
-                    borderRadius: "8px"
-                  }}>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: "24px", fontWeight: "700", color: "#667eea" }}>
+                  <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-zinc-50 border border-zinc-100 rounded-xl">
+                    <div className="text-center">
+                      <div className="text-2xl font-serif font-bold text-orange-500">
                         {room.total_questions}
                       </div>
-                      <div style={{ fontSize: "12px", color: "#666" }}>Questions</div>
+                      <div className="text-xs font-mono text-zinc-600 uppercase tracking-wider">Questions</div>
                     </div>
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontSize: "24px", fontWeight: "700", color: "#667eea" }}>
+                    <div className="text-center">
+                      <div className="text-2xl font-serif font-bold text-orange-500">
                         {room.active_users}
                       </div>
-                      <div style={{ fontSize: "12px", color: "#666" }}>Competitors</div>
+                      <div className="text-xs font-mono text-zinc-600 uppercase tracking-wider">Competitors</div>
                     </div>
                   </div>
 
                   {/* Time Info */}
                   {room.status === "active" && (
-                    <div style={{
-                      padding: "0.75rem",
-                      backgroundColor: "#fff3cd",
-                      borderRadius: "8px",
-                      marginBottom: "1rem",
-                      textAlign: "center"
-                    }}>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#856404" }}>
-                        ⏰ {getTimeRemaining(room.ends_at)}
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-50 border border-orange-200 rounded-xl mb-4">
+                      <Clock className="w-4 h-4 text-orange-600" />
+                      <span className="text-sm font-sans font-semibold text-orange-700">
+                        {getTimeRemaining(room.ends_at)}
                       </span>
                     </div>
                   )}
 
                   {room.status === "upcoming" && (
-                    <div style={{
-                      padding: "0.75rem",
-                      backgroundColor: "#d1ecf1",
-                      borderRadius: "8px",
-                      marginBottom: "1rem",
-                      textAlign: "center"
-                    }}>
-                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#0c5460" }}>
-                        🕐 Starts: {new Date(room.starts_at).toLocaleDateString()} {new Date(room.starts_at).toLocaleTimeString()}
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl mb-4">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-sans font-semibold text-blue-700">
+                        Starts: {new Date(room.starts_at).toLocaleDateString()} {new Date(room.starts_at).toLocaleTimeString()}
                       </span>
                     </div>
                   )}
@@ -424,45 +399,36 @@ export default function VoomPage() {
                   {/* Action Button */}
                   <button
                     disabled={room.status !== "active"}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      background: room.status === "active" 
-                        ? "linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
-                        : "#ccc",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      cursor: room.status === "active" ? "pointer" : "not-allowed"
-                    }}
+                    className={`w-full py-3 rounded-xl font-sans font-semibold text-sm transition-all ${
+                      room.status === "active"
+                        ? "bg-orange-500 hover:bg-orange-600 text-white border border-orange-600"
+                        : "bg-zinc-300 text-zinc-500 cursor-not-allowed"
+                    }`}
                   >
-                    {room.status === "active" ? "🚀 Enter Room" : 
-                     room.status === "upcoming" ? "⏳ Not Started" : "✅ Ended"}
+                    {room.status === "active" ? "Enter Room" : 
+                     room.status === "upcoming" ? "Not Started" : "Ended"}
                   </button>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
 
         {filteredRooms.length === 0 && !loadingRooms && (
-          <div style={{
-            backgroundColor: "rgba(255,255,255,0.95)",
-            borderRadius: "16px",
-            padding: "3rem",
-            textAlign: "center",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-          }}>
-            <div style={{ fontSize: "48px", marginBottom: "1rem" }}>🔍</div>
-            <h3 style={{ fontSize: "24px", fontWeight: "600", color: "#333", marginBottom: "0.5rem" }}>
+          <motion.div 
+            className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-12 text-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Search className="w-16 h-16 text-zinc-400 mx-auto mb-4" />
+            <h3 className="text-2xl font-serif font-bold text-zinc-900 mb-2">
               No Rooms Found
             </h3>
-            <p style={{ fontSize: "16px", color: "#666" }}>
+            <p className="text-base font-sans text-zinc-600">
               Try adjusting your filters or check back later for new rooms!
             </p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

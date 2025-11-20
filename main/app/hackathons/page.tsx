@@ -4,6 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { motion } from "framer-motion";
+import { Search, Filter, Award, Calendar, Users, ArrowLeft, Beaker, Sprout, HeartPulse, Building2, Brain, Zap } from "lucide-react";
 
 interface Problem {
   id: string;
@@ -251,146 +253,101 @@ export default function HackathonsPage() {
     }
   };
 
+  const categoryIcons: Record<string, any> = {
+    Environment: Beaker,
+    Healthcare: HeartPulse,
+    "Smart Cities": Building2,
+    Agriculture: Sprout,
+    Education: Brain,
+    Energy: Zap
+  };
+
   if (loading) return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
-      <div style={{
-        padding: "2rem",
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 10px 40px rgba(0,0,0,0.1)"
-      }}>
-        <p style={{ fontSize: "18px", color: "#667eea" }}>Loading...</p>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-orange-500 border-r-transparent"></div>
+        <p className="mt-4 font-mono text-sm text-zinc-500">LOADING CHALLENGES</p>
       </div>
     </div>
   );
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav style={{
-        backgroundColor: "rgba(255,255,255,0.95)",
-        backdropFilter: "blur(10px)",
-        padding: "1rem 2rem",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
-        <div style={{
-          fontSize: "24px",
-          fontWeight: "700",
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          cursor: "pointer"
-        }}
-        onClick={() => router.push("/dashboard")}
-        >
-          🚀 CodeBharat
+      <nav className="bg-white/60 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="font-serif text-2xl font-bold text-zinc-900 hover:text-orange-500 transition-colors"
+          >
+            Yukti-AI
+          </button>
+          
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 hover:border-orange-200 rounded-lg text-sm font-mono text-zinc-700 hover:text-orange-500 transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            DASHBOARD
+          </button>
         </div>
-        
-        <button
-          onClick={() => router.push("/dashboard")}
-          style={{
-            padding: "0.5rem 1rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "600"
-          }}
-        >
-          ← Back to Dashboard
-        </button>
       </nav>
 
       {/* Header */}
-      <div style={{
-        padding: "3rem 2rem",
-        textAlign: "center",
-        color: "white"
-      }}>
-        <h1 style={{
-          fontSize: "48px",
-          fontWeight: "800",
-          marginBottom: "1rem",
-          textShadow: "0 2px 10px rgba(0,0,0,0.2)"
-        }}>
-          💻 Global Research Hackathons
-        </h1>
-        <p style={{
-          fontSize: "20px",
-          opacity: 0.95,
-          maxWidth: "800px",
-          margin: "0 auto"
-        }}>
-          Solve real-world problems posted by scientists and researchers. Make your contribution count!
-        </p>
+      <div className="py-16 px-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Award className="w-12 h-12 text-orange-500" />
+            <h1 className="font-serif text-5xl font-bold text-zinc-900">
+              Global Research Hackathons
+            </h1>
+          </div>
+          <p className="font-sans text-xl text-zinc-600 max-w-3xl mx-auto">
+            Solve real-world problems posted by scientists and researchers. Make your contribution count!
+          </p>
+        </motion.div>
       </div>
 
       {/* Filters and Search */}
-      <div style={{
-        maxWidth: "1400px",
-        margin: "0 auto",
-        padding: "0 2rem 2rem"
-      }}>
-        <div style={{
-          backgroundColor: "rgba(255,255,255,0.95)",
-          borderRadius: "16px",
-          padding: "1.5rem",
-          marginBottom: "2rem",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-        }}>
+      <div className="max-w-7xl mx-auto px-8 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-6 mb-6 shadow-sm"
+        >
           {/* Search Bar */}
-          <input
-            type="text"
-            placeholder="🔍 Search problems, tags, or keywords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "1rem 1.5rem",
-              fontSize: "16px",
-              border: "2px solid #e1e8ed",
-              borderRadius: "12px",
-              outline: "none",
-              marginBottom: "1.5rem",
-              boxSizing: "border-box"
-            }}
-          />
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search problems, tags, or keywords..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 hover:border-orange-200 focus:border-orange-500 focus:outline-none rounded-lg font-sans text-zinc-900 placeholder:text-zinc-400"
+            />
+          </div>
 
           {/* Category Filter */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ fontWeight: "600", color: "#333", marginBottom: "0.5rem", display: "block" }}>
+          <div className="mb-6">
+            <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-zinc-700 mb-3">
+              <Filter className="w-4 h-4" />
               Category
             </label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            <div className="flex flex-wrap gap-2">
               {categories.map(category => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: selectedCategory === category ? "2px solid #667eea" : "2px solid #e1e8ed",
-                    backgroundColor: selectedCategory === category ? "#667eea" : "white",
-                    color: selectedCategory === category ? "white" : "#333",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    transition: "all 0.2s"
-                  }}
+                  className={`px-4 py-2 rounded-lg font-sans text-sm transition-all ${
+                    selectedCategory === category
+                      ? "bg-orange-500 text-white border-2 border-orange-500"
+                      : "bg-white text-zinc-700 border-2 border-zinc-200 hover:border-orange-200"
+                  }`}
                 >
                   {category}
                 </button>
@@ -400,134 +357,80 @@ export default function HackathonsPage() {
 
           {/* Difficulty Filter */}
           <div>
-            <label style={{ fontWeight: "600", color: "#333", marginBottom: "0.5rem", display: "block" }}>
+            <label className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-zinc-700 mb-3">
+              <Zap className="w-4 h-4" />
               Difficulty
             </label>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div className="flex gap-2">
               {difficulties.map(difficulty => (
                 <button
                   key={difficulty}
                   onClick={() => setSelectedDifficulty(difficulty)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: selectedDifficulty === difficulty ? "2px solid #667eea" : "2px solid #e1e8ed",
-                    backgroundColor: selectedDifficulty === difficulty ? "#667eea" : "white",
-                    color: selectedDifficulty === difficulty ? "white" : "#333",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    transition: "all 0.2s"
-                  }}
+                  className={`px-4 py-2 rounded-lg font-sans text-sm transition-all ${
+                    selectedDifficulty === difficulty
+                      ? "bg-orange-500 text-white border-2 border-orange-500"
+                      : "bg-white text-zinc-700 border-2 border-zinc-200 hover:border-orange-200"
+                  }`}
                 >
                   {difficulty}
                 </button>
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Results Count */}
-        <div style={{
-          color: "white",
-          fontSize: "18px",
-          fontWeight: "600",
-          marginBottom: "1.5rem",
-          textAlign: "center"
-        }}>
-          {filteredProblems.length} Problem{filteredProblems.length !== 1 ? 's' : ''} Available
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="font-mono text-sm text-zinc-600">
+            {filteredProblems.length} Problem{filteredProblems.length !== 1 ? 's' : ''} Available
+          </div>
         </div>
 
         {/* Problems Grid */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
-          gap: "1.5rem"
-        }}>
-          {filteredProblems.map(problem => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProblems.map((problem, index) => {
+            const CategoryIcon = categoryIcons[problem.category] || Brain;
+            return (
+            <motion.div
               key={problem.id}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "16px",
-                padding: "1.5rem",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-                transition: "all 0.3s ease",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column"
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
               onClick={() => router.push(`/hackathons/${problem.id}`)}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = "translateY(-8px)";
-                e.currentTarget.style.boxShadow = "0 15px 40px rgba(102,126,234,0.4)";
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
-              }}
+              className="bg-white/60 backdrop-blur-md border border-zinc-200 hover:border-orange-200 rounded-2xl p-6 cursor-pointer flex flex-col group shadow-sm hover:shadow-md transition-all"
             >
               {/* Header */}
-              <div style={{ marginBottom: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.75rem" }}>
-                  <span style={{
-                    padding: "0.25rem 0.75rem",
-                    backgroundColor: getDifficultyColor(problem.difficulty),
-                    color: "white",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    fontWeight: "600"
-                  }}>
-                    {problem.difficulty}
+              <div className="mb-4">
+                <div className="flex justify-between items-start mb-3">
+                  <span className={`px-3 py-1 rounded-md font-mono text-xs font-semibold ${
+                    problem.difficulty === "Beginner" ? "bg-green-100 text-green-700" :
+                    problem.difficulty === "Intermediate" ? "bg-orange-100 text-orange-700" :
+                    "bg-red-100 text-red-700"
+                  }`}>
+                    {problem.difficulty.toUpperCase()}
                   </span>
-                  <span style={{
-                    padding: "0.25rem 0.75rem",
-                    backgroundColor: "#f0f0f0",
-                    color: "#666",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    fontWeight: "600"
-                  }}>
-                    {problem.category}
-                  </span>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 rounded-md">
+                    <CategoryIcon className="w-3.5 h-3.5 text-zinc-600" />
+                    <span className="font-mono text-xs text-zinc-600">
+                      {problem.category}
+                    </span>
+                  </div>
                 </div>
-                <h3 style={{
-                  fontSize: "20px",
-                  fontWeight: "700",
-                  color: "#333",
-                  marginBottom: "0.5rem",
-                  lineHeight: "1.3"
-                }}>
+                <h3 className="font-serif text-xl font-bold text-zinc-900 mb-2 leading-tight group-hover:text-orange-500 transition-colors">
                   {problem.title}
                 </h3>
-                <p style={{
-                  fontSize: "14px",
-                  color: "#666",
-                  lineHeight: "1.5",
-                  marginBottom: "1rem"
-                }}>
+                <p className="font-sans text-sm text-zinc-600 leading-relaxed">
                   {problem.description}
                 </p>
               </div>
 
               {/* Tags */}
-              <div style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "0.5rem",
-                marginBottom: "1rem"
-              }}>
+              <div className="flex flex-wrap gap-2 mb-4">
                 {problem.tags.map(tag => (
                   <span
                     key={tag}
-                    style={{
-                      padding: "0.25rem 0.5rem",
-                      backgroundColor: "#e8f0fe",
-                      color: "#667eea",
-                      borderRadius: "4px",
-                      fontSize: "11px",
-                      fontWeight: "500"
-                    }}
+                    className="px-2 py-1 bg-orange-50 text-orange-600 rounded font-mono text-xs"
                   >
                     {tag}
                   </span>
@@ -535,83 +438,63 @@ export default function HackathonsPage() {
               </div>
 
               {/* Footer */}
-              <div style={{
-                marginTop: "auto",
-                paddingTop: "1rem",
-                borderTop: "1px solid #e1e8ed"
-              }}>
-                <div style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "0.75rem"
-                }}>
+              <div className="mt-auto pt-4 border-t border-zinc-200">
+                <div className="flex justify-between items-start mb-3">
                   <div>
-                    <div style={{ fontSize: "12px", color: "#999", marginBottom: "0.25rem" }}>Posted by</div>
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#333" }}>{problem.postedBy}</div>
-                    <div style={{ fontSize: "12px", color: "#666" }}>{problem.organization}</div>
+                    <div className="font-mono text-xs text-zinc-400 uppercase tracking-wider mb-1">Posted by</div>
+                    <div className="font-sans text-sm font-semibold text-zinc-900">{problem.postedBy}</div>
+                    <div className="font-sans text-xs text-zinc-600">{problem.organization}</div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "12px", color: "#999", marginBottom: "0.25rem" }}>Submissions</div>
-                    <div style={{ fontSize: "18px", fontWeight: "700", color: "#667eea" }}>{problem.submissions}</div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1 justify-end mb-1">
+                      <Users className="w-3.5 h-3.5 text-zinc-400" />
+                      <span className="font-mono text-xs text-zinc-400 uppercase tracking-wider">Submissions</span>
+                    </div>
+                    <div className="font-serif text-xl font-bold text-orange-500">{problem.submissions}</div>
                   </div>
                 </div>
 
                 {problem.prize && (
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.75rem",
-                    backgroundColor: "#fff3cd",
-                    borderRadius: "8px",
-                    marginBottom: "0.5rem"
-                  }}>
-                    <span style={{ fontSize: "13px", fontWeight: "600", color: "#856404" }}>
-                      🏆 Prize: {problem.prize}
-                    </span>
-                    {problem.deadline && (
-                      <span style={{ fontSize: "12px", color: "#856404" }}>
-                        ⏰ {problem.deadline}
+                  <div className="flex justify-between items-center p-3 bg-orange-50 border border-orange-200 rounded-lg mb-3">
+                    <div className="flex items-center gap-2">
+                      <Award className="w-4 h-4 text-orange-600" />
+                      <span className="font-mono text-sm font-semibold text-orange-700">
+                        {problem.prize}
                       </span>
+                    </div>
+                    {problem.deadline && (
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-orange-600" />
+                        <span className="font-mono text-xs text-orange-700">
+                          {problem.deadline}
+                        </span>
+                      </div>
                     )}
                   </div>
                 )}
 
-                <button style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  fontWeight: "600",
-                  cursor: "pointer"
-                }}>
+                <button className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-sans text-sm font-semibold transition-colors">
                   View Details & Contribute →
                 </button>
               </div>
-            </div>
-          ))}
+            </motion.div>
+          );})}
         </div>
 
         {filteredProblems.length === 0 && (
-          <div style={{
-            backgroundColor: "rgba(255,255,255,0.95)",
-            borderRadius: "16px",
-            padding: "3rem",
-            textAlign: "center",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-          }}>
-            <div style={{ fontSize: "48px", marginBottom: "1rem" }}>🔍</div>
-            <h3 style={{ fontSize: "24px", fontWeight: "600", color: "#333", marginBottom: "0.5rem" }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white/60 backdrop-blur-md border border-zinc-200 rounded-2xl p-12 text-center"
+          >
+            <Search className="w-16 h-16 text-zinc-300 mx-auto mb-4" />
+            <h3 className="font-serif text-2xl font-bold text-zinc-900 mb-2">
               No Problems Found
             </h3>
-            <p style={{ fontSize: "16px", color: "#666" }}>
+            <p className="font-sans text-base text-zinc-600">
               Try adjusting your filters or search query
             </p>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
