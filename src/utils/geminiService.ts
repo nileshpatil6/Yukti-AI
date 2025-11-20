@@ -143,4 +143,12 @@ Only return the code, no explanations.
   }
 }
 
+
 export const geminiService = new GeminiService();
+
+export const getTheme = () => {
+  if (typeof window !== 'undefined') {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  }
+  return 'light';
+};
