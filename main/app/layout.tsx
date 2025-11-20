@@ -1,20 +1,29 @@
-import type { Metadata } from "next";
+'use client';
 
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
-
-export const metadata: Metadata = {
-  title: "Firebase Auth App",
-  description: "Authentication with Firebase",
-};
+import { useState, useEffect } from "react";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isDark, setIsDark] = useState(false);
+
+
+  useEffect(() => {
+    // Always set light theme as default
+    document.documentElement.classList.remove('dark');
+    setIsDark(false);
+  }, []);
+
   return (
-    <html lang="en">
+    <html lang="en" className={isDark ? 'dark' : ''}>
+      <head>
+        <title>Quadbits</title>
+        <meta name="description" content="Academic Futurism Design System" />
+      </head>
       <body>
         <AuthProvider>
           {children}
