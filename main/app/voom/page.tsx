@@ -124,7 +124,7 @@ export default function VoomPage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         
         <button

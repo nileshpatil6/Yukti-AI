@@ -121,7 +121,7 @@ export default function ChallengesPage() {
         }}
         onClick={() => router.push("/dashboard")}
         >
-          🚀 CodeBharat
+          Yukti
         </div>
         <button 
           onClick={() => router.push("/dashboard")}
