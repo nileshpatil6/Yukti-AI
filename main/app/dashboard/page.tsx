@@ -366,6 +366,67 @@ export default function DashboardPage() {
               Explore Hackathons →
             </button>
           </div>
+
+          {/* Voom Card */}
+          <div style={{
+            backgroundColor: "white",
+            borderRadius: "16px",
+            padding: "2rem",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            transition: "all 0.3s ease",
+            cursor: "pointer"
+          }}
+          onClick={() => router.push("/voom")}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = "translateY(-8px)";
+            e.currentTarget.style.boxShadow = "0 15px 40px rgba(116,75,162,0.3)";
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.2)";
+          }}
+          >
+            <div style={{
+              width: "60px",
+              height: "60px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "28px",
+              marginBottom: "1rem"
+            }}>
+              🎯
+            </div>
+            <h3 style={{
+              fontSize: "24px",
+              fontWeight: "700",
+              color: "#333",
+              marginBottom: "0.5rem"
+            }}>Voom</h3>
+            <p style={{
+              fontSize: "15px",
+              color: "#666",
+              lineHeight: "1.6"
+            }}>
+              Join 24-hour challenge rooms on different topics. Compete with others and climb the leaderboard!
+            </p>
+            <button style={{
+              marginTop: "1.5rem",
+              padding: "0.75rem 1.5rem",
+              background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: "pointer",
+              width: "100%"
+            }}>
+              Enter Voom Rooms →
+            </button>
+          </div>
         </div>
       </div>
 
