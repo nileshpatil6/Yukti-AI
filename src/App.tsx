@@ -13,7 +13,7 @@ import ReactFlow, {
   Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { Play, Download, Trash2, BookOpen, Upload, Menu } from 'lucide-react';
+import { Play, Download, Trash2, BookOpen, Upload, Menu, Undo, Redo } from 'lucide-react';
 
 import { ComponentLibrary } from './components/ComponentLibrary';
 import { CustomNode } from './components/CustomNode';
@@ -25,6 +25,7 @@ import { generateExperimentJSON, downloadJSON } from './utils/jsonGenerator';
 import { geminiService } from './utils/geminiService';
 import { EXAMPLE_EXPERIMENTS, EXAMPLE_LIST } from './data/exampleExperiments';
 import { shapeRecognizer } from './utils/shapeRecognition';
+import { useUndoRedo } from './hooks/useUndoRedo';
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
@@ -33,6 +34,8 @@ const nodeTypes: NodeTypes = {
 function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
+  
   const [apiKey, setApiKey] = useState('');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -60,6 +63,7 @@ function App() {
 
   const onConnect = useCallback(
     (params: Connection) => {
+      takeSnapshot(nodes, edges);
       const newEdge = {
         ...params,
         type: 'smoothstep',
@@ -72,20 +76,25 @@ function App() {
       };
       setEdges((eds) => addEdge(newEdge, eds));
     },
-    [setEdges]
+    [setEdges, takeSnapshot, nodes, edges]
   );
 
   const onEdgeClick = useCallback(
     (_event: React.MouseEvent, edge: Edge) => {
       const label = prompt('Enter a label for this connection (e.g., condition, value):', edge.label as string || '');
       if (label !== null) {
+        takeSnapshot(nodes, edges);
         setEdges((eds) =>
           eds.map((e) => (e.id === edge.id ? { ...e, label } : e))
         );
       }
     },
-    [setEdges]
+    [setEdges, takeSnapshot, nodes, edges]
   );
+
+  const onNodeDragStart = useCallback(() => {
+    takeSnapshot(nodes, edges);
+  }, [takeSnapshot, nodes, edges]);
 
   const onDragOver = useCallback((event: DragEvent) => {
     event.preventDefault();
@@ -118,9 +127,10 @@ function App() {
         },
       };
 
+      takeSnapshot(nodes, edges);
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, setNodes, takeSnapshot, nodes, edges]
   );
 
   const handleRunExperiment = async () => {
@@ -163,6 +173,7 @@ function App() {
 
   const handleClearCanvas = () => {
     if (nodes.length > 0 && confirm('Are you sure you want to clear the canvas?')) {
+      takeSnapshot(nodes, edges);
       setNodes([]);
       setEdges([]);
       setAnalysisResult('');
@@ -173,6 +184,7 @@ function App() {
   const handleLoadExample = (exampleId: string) => {
     const example = EXAMPLE_EXPERIMENTS[exampleId];
     if (example) {
+      takeSnapshot(nodes, edges);
       setNodes(example.nodes as Node[]);
       setEdges(example.edges as Edge[]);
       setShowExamplesModal(false);
@@ -183,9 +195,10 @@ function App() {
 
   const handleShapeComplete = useCallback((shape: DrawnShape) => {
     const newNode = shapeRecognizer.convertShapeToNode(shape, shape.label);
+    takeSnapshot(nodes, edges);
     setNodes((nds) => nds.concat(newNode as Node));
     setCurrentDrawingTool(null);
-  }, [setNodes]);
+  }, [setNodes, takeSnapshot, nodes, edges]);
 
   const handleToolSelect = useCallback((tool: DrawingTool | null) => {
     if (!tool) {
@@ -267,8 +280,9 @@ function App() {
     };
 
     const newNode = shapeRecognizer.convertShapeToNode(shape, shape.label);
+    takeSnapshot(nodes, edges);
     setNodes((nds) => nds.concat(newNode as Node));
-  }, [setNodes]);
+  }, [setNodes, takeSnapshot, nodes, edges]);
 
   const handleImportJSON = () => {
     const input = document.createElement('input');
@@ -282,6 +296,7 @@ function App() {
           try {
             const json = JSON.parse(event.target?.result as string);
             if (json.nodes && json.edges) {
+              takeSnapshot(nodes, edges);
               setNodes(json.nodes);
               setEdges(json.edges);
               alert('Experiment loaded successfully!');
@@ -325,6 +340,7 @@ function App() {
           onInit={setReactFlowInstance}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onNodeDragStart={onNodeDragStart}
           nodeTypes={nodeTypes}
           fitView
           deleteKeyCode="Delete"
@@ -349,6 +365,49 @@ function App() {
               gap: '8px',
               flexWrap: 'wrap',
             }}>
+              <div style={{ display: 'flex', gap: '4px', marginRight: '8px', borderRight: '1px solid #e5e7eb', paddingRight: '8px' }}>
+                <button
+                  onClick={() => undo(nodes, edges, setNodes, setEdges)}
+                  disabled={!canUndo}
+                  title="Undo"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '8px',
+                    backgroundColor: 'transparent',
+                    color: canUndo ? '#374151' : '#d1d5db',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: canUndo ? 'pointer' : 'not-allowed',
+                  }}
+                  onMouseEnter={(e) => canUndo && (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <Undo size={18} />
+                </button>
+                <button
+                  onClick={() => redo(nodes, edges, setNodes, setEdges)}
+                  disabled={!canRedo}
+                  title="Redo"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '8px',
+                    backgroundColor: 'transparent',
+                    color: canRedo ? '#374151' : '#d1d5db',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: canRedo ? 'pointer' : 'not-allowed',
+                  }}
+                  onMouseEnter={(e) => canRedo && (e.currentTarget.style.backgroundColor = '#f3f4f6')}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <Redo size={18} />
+                </button>
+              </div>
+
               <button
                 onClick={handleRunExperiment}
                 disabled={isAnalyzing}

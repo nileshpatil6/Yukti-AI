@@ -738,6 +738,129 @@ export const COMPONENT_LIBRARY: ComponentData[] = [
       { suffix: 'Measurement', props: { type: 'measurement' } },
     ]
   ),
+
+  // ASTRONOMY (50+ components)
+  ...generateComponents(
+    {
+      id: 'astro',
+      label: 'Astronomy',
+      category: 'astronomy',
+      description: 'Astronomical object',
+      icon: '🪐',
+      properties: { type: 'generic' },
+    },
+    [
+      { suffix: 'Star (Sun-like)', props: { type: 'star', class: 'G' } },
+      { suffix: 'Red Giant', props: { type: 'star', class: 'M' } },
+      { suffix: 'White Dwarf', props: { type: 'star', class: 'D' } },
+      { suffix: 'Black Hole', props: { type: 'blackhole' } },
+      { suffix: 'Neutron Star', props: { type: 'neutron_star' } },
+      { suffix: 'Planet (Rocky)', props: { type: 'planet', subtype: 'terrestrial' } },
+      { suffix: 'Planet (Gas Giant)', props: { type: 'planet', subtype: 'gas_giant' } },
+      { suffix: 'Moon', props: { type: 'moon' } },
+      { suffix: 'Asteroid', props: { type: 'asteroid' } },
+      { suffix: 'Comet', props: { type: 'comet' } },
+      { suffix: 'Galaxy (Spiral)', props: { type: 'galaxy', shape: 'spiral' } },
+      { suffix: 'Galaxy (Elliptical)', props: { type: 'galaxy', shape: 'elliptical' } },
+      { suffix: 'Nebula', props: { type: 'nebula' } },
+    ]
+  ),
+
+  // GEOLOGY (50+ components)
+  ...generateComponents(
+    {
+      id: 'geo',
+      label: 'Geology',
+      category: 'geology',
+      description: 'Geological component',
+      icon: '🌋',
+      properties: { type: 'generic' },
+    },
+    [
+      { suffix: 'Volcano', props: { type: 'volcano' } },
+      { suffix: 'Earthquake Source', props: { type: 'earthquake' } },
+      { suffix: 'Tectonic Plate', props: { type: 'plate' } },
+      { suffix: 'Magma Chamber', props: { type: 'magma' } },
+      { suffix: 'Sedimentary Rock', props: { type: 'rock', subtype: 'sedimentary' } },
+      { suffix: 'Igneous Rock', props: { type: 'rock', subtype: 'igneous' } },
+      { suffix: 'Metamorphic Rock', props: { type: 'rock', subtype: 'metamorphic' } },
+      { suffix: 'Fossil', props: { type: 'fossil' } },
+      { suffix: 'Mineral (Quartz)', props: { type: 'mineral', name: 'quartz' } },
+      { suffix: 'Mineral (Gold)', props: { type: 'mineral', name: 'gold' } },
+    ]
+  ),
+
+  // MUSIC & AUDIO (50+ components)
+  ...generateComponents(
+    {
+      id: 'audio',
+      label: 'Audio',
+      category: 'music',
+      description: 'Audio component',
+      icon: '🎵',
+      properties: { type: 'generic' },
+    },
+    [
+      { suffix: 'Oscillator (Sine)', props: { type: 'oscillator', wave: 'sine' } },
+      { suffix: 'Oscillator (Square)', props: { type: 'oscillator', wave: 'square' } },
+      { suffix: 'Oscillator (Saw)', props: { type: 'oscillator', wave: 'sawtooth' } },
+      { suffix: 'Filter (Low Pass)', props: { type: 'filter', subtype: 'lowpass' } },
+      { suffix: 'Filter (High Pass)', props: { type: 'filter', subtype: 'highpass' } },
+      { suffix: 'Amplifier', props: { type: 'amp' } },
+      { suffix: 'Speaker', props: { type: 'speaker' } },
+      { suffix: 'Microphone', props: { type: 'mic' } },
+      { suffix: 'Delay', props: { type: 'effect', subtype: 'delay' } },
+      { suffix: 'Reverb', props: { type: 'effect', subtype: 'reverb' } },
+    ]
+  ),
+
+  // ROBOTICS (50+ components)
+  ...generateComponents(
+    {
+      id: 'robot',
+      label: 'Robotics',
+      category: 'robotics',
+      description: 'Robotic component',
+      icon: '🤖',
+      properties: { type: 'generic' },
+    },
+    [
+      { suffix: 'Servo Motor', props: { type: 'motor', subtype: 'servo' } },
+      { suffix: 'Stepper Motor', props: { type: 'motor', subtype: 'stepper' } },
+      { suffix: 'DC Motor', props: { type: 'motor', subtype: 'dc' } },
+      { suffix: 'Robot Arm Joint', props: { type: 'joint' } },
+      { suffix: 'Gripper', props: { type: 'effector', subtype: 'gripper' } },
+      { suffix: 'Lidar Sensor', props: { type: 'sensor', subtype: 'lidar' } },
+      { suffix: 'Camera', props: { type: 'sensor', subtype: 'camera' } },
+      { suffix: 'IMU', props: { type: 'sensor', subtype: 'imu' } },
+      { suffix: 'Wheel', props: { type: 'actuator', subtype: 'wheel' } },
+      { suffix: 'Chassis', props: { type: 'structure' } },
+    ]
+  ),
+
+  // AI & ML (50+ components)
+  ...generateComponents(
+    {
+      id: 'ai',
+      label: 'AI/ML',
+      category: 'ai_ml',
+      description: 'AI/ML Block',
+      icon: '🧠',
+      properties: { type: 'generic' },
+    },
+    [
+      { suffix: 'Neural Network Layer', props: { type: 'layer', subtype: 'dense' } },
+      { suffix: 'Convolution Layer', props: { type: 'layer', subtype: 'conv2d' } },
+      { suffix: 'Pooling Layer', props: { type: 'layer', subtype: 'maxpool' } },
+      { suffix: 'Activation (ReLU)', props: { type: 'activation', func: 'relu' } },
+      { suffix: 'Activation (Sigmoid)', props: { type: 'activation', func: 'sigmoid' } },
+      { suffix: 'Activation (Softmax)', props: { type: 'activation', func: 'softmax' } },
+      { suffix: 'Dataset (Images)', props: { type: 'data', subtype: 'images' } },
+      { suffix: 'Dataset (Text)', props: { type: 'data', subtype: 'text' } },
+      { suffix: 'Optimizer (Adam)', props: { type: 'optimizer', name: 'adam' } },
+      { suffix: 'Loss Function', props: { type: 'loss' } },
+    ]
+  ),
 ];
 
 export const CATEGORIES = [
@@ -751,6 +874,11 @@ export const CATEGORIES = [
   { id: 'optics', label: 'Optics', icon: '🔍', color: '#a855f7' },
   { id: 'quantum', label: 'Quantum', icon: '⚛️', color: '#14b8a6' },
   { id: 'mechanics', label: 'Mechanics', icon: '⚙️', color: '#6366f1' },
+  { id: 'astronomy', label: 'Astronomy', icon: '🪐', color: '#818cf8' },
+  { id: 'geology', label: 'Geology', icon: '🌋', color: '#b45309' },
+  { id: 'music', label: 'Music & Audio', icon: '🎵', color: '#db2777' },
+  { id: 'robotics', label: 'Robotics', icon: '🤖', color: '#4b5563' },
+  { id: 'ai_ml', label: 'AI & ML', icon: '🧠', color: '#7c3aed' },
 ];
 
 console.log(`Total components: ${COMPONENT_LIBRARY.length}`);
