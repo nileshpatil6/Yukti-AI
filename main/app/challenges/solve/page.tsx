@@ -241,7 +241,7 @@ export default function SolveChallengePage() {
             >
               {currentIndex === challengeData.questions.length - 1 ? "Complete Challenge" : "Mark Complete & Next"}
             </button>
-          </div>
+          </motion.div>
 
           {/* Canvas Panel */}
           <div style={{

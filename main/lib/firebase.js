@@ -3,9 +3,9 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC7oWIeOfdyRkOvKjEOlvU3X6F5XVIRemA",
-  authDomain: "Yukti-AI-31863.firebaseapp.com",
-  projectId: "Yukti-AI-31863",
-  storageBucket: "Yukti-AI-31863.firebasestorage.app",
+  authDomain: "codebharat-31863.firebaseapp.com",
+  projectId: "codebharat-31863",
+  storageBucket: "codebharat-31863.firebasestorage.app",
   messagingSenderId: "79399875782",
   appId: "1:79399875782:web:b3e4d5915dc56ab43553c7",
   measurementId: "G-L5WZFFD7E3"

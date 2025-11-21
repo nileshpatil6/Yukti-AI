@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yukti-AI | The Future of Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['DM Serif Display', 'serif'],
+            },
+            colors: {
+              ink: '#ffffff',
+              paper: '#f4f4f5',
+              orange: {
+                500: '#ff4f00', // International Orange
+                600: '#cc3f00',
+              },
+              carbon: '#fafafa',
+            },
+            backgroundImage: {
+              'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
+            },
+            animation: {
+              'spin-slow': 'spin 20s linear infinite',
+              'marquee': 'marquee 25s linear infinite',
+              aurora: "aurora 60s linear infinite",
+            },
+            keyframes: {
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-100%)' },
+              },
+              aurora: {
+                from: {
+                  backgroundPosition: "50% 50%, 50% 50%",
+                },
+                to: {
+                  backgroundPosition: "350% 50%, 350% 50%",
+                },
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #ffffff;
+        color: #18181b;
+        overflow-x: hidden;
+        font-feature-settings: "ss01", "ss02";
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      html.dark body {
+        background-color: #09090b; /* zinc-950 */
+        color: #fafafa;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+      .text-glow {
+        text-shadow: 0 0 20px rgba(255, 79, 0, 0.1);
+      }
+      
+      /* Global CSS Variables for AuroraBackground */
+      :root {
+        --white: #ffffff;
+        --black: #000000;
+        --transparent: transparent;
+        --blue-500: #3b82f6;
+        --blue-400: #60a5fa;
+        --blue-300: #93c5fd;
+        --indigo-300: #a5b4fc;
+        --violet-200: #ddd6fe;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^18.3.1/",
+    "react/": "https://aistudiocdn.com/react@^18.3.1/",
+    "react": "https://aistudiocdn.com/react@^18.3.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.0.0",
+    "tailwind-merge": "https://aistudiocdn.com/tailwind-merge@^3.4.0",
+    "clsx": "https://aistudiocdn.com/clsx@^2.1.1",
+    "three": "https://aistudiocdn.com/three@0.164.1",
+    "@react-three/fiber": "https://aistudiocdn.com/@react-three/fiber@8.16.2",
+    "@react-three/drei": "https://aistudiocdn.com/@react-three/drei@9.105.6",
+    "maath": "https://aistudiocdn.com/maath@0.10.7"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
