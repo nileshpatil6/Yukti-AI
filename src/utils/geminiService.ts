@@ -98,10 +98,10 @@ Ensure the response is valid JSON. Do not include any markdown formatting or cod
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       // Clean up potential markdown code blocks
       const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
-      
+
       return JSON.parse(cleanText) as AnalysisResult;
     } catch (error) {
       console.error("Gemini Analysis Error:", error);
@@ -151,4 +151,82 @@ export const getTheme = () => {
     return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
   }
   return 'light';
+};
+
+// Wrapper functions for App_Challenge.tsx
+export const analyzeExperiment = async (
+  nodes: any[],
+  edges: any[]
+): Promise<AnalysisResult> => {
+  const experimentJSON: ExperimentJSON = {
+    nodes: nodes.map(node => ({
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: {
+        label: node.data.label,
+        component: {
+          id: node.id,
+          label: node.data.label,
+          category: node.data.category || 'General',
+          icon: '',
+          description: '',
+          inputs: 1,
+          outputs: 1,
+          properties: {}
+        }
+      }
+    })),
+    edges: edges.map(edge => ({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      condition: edge.data?.condition
+    })),
+    metadata: {
+      title: 'Challenge Experiment',
+      description: 'User submitted challenge solution',
+      created: new Date().toISOString()
+    }
+  };
+
+  return geminiService.analyzeExperiment(experimentJSON);
+};
+
+export const getHint = async (
+  userMessage: string,
+  experimentContext: any
+): Promise<string> => {
+  const experimentJSON: ExperimentJSON = {
+    nodes: experimentContext.nodes.map((node: any) => ({
+      id: node.id,
+      type: 'custom',
+      position: { x: 0, y: 0 },
+      data: {
+        label: node.label,
+        component: {
+          id: node.id,
+          label: node.label,
+          category: node.category || 'General',
+          icon: '',
+          description: '',
+          inputs: 1,
+          outputs: 1,
+          properties: {}
+        }
+      }
+    })),
+    edges: experimentContext.edges.map((edge: any) => ({
+      id: `${edge.source}-${edge.target}`,
+      source: edge.source,
+      target: edge.target
+    })),
+    metadata: {
+      title: 'Current Experiment',
+      description: 'User experiment context for hint',
+      created: new Date().toISOString()
+    }
+  };
+
+  return geminiService.getHint(experimentJSON, userMessage);
 };

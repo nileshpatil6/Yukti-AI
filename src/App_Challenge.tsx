@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -11,13 +11,14 @@ import ReactFlow, {
   MiniMap,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import CustomNode from './components/CustomNode';
-import ComponentLibrary from './components/ComponentLibrary';
-import DrawingToolbar from './components/DrawingToolbar';
-import DrawingCanvas from './components/DrawingCanvas';
-import RobotAssistant from './components/RobotAssistant';
+import { CustomNode } from './components/CustomNode';
+import { ComponentLibrary } from './components/ComponentLibrary';
+import { DrawingToolbar } from './components/DrawingToolbar';
+import { DrawingCanvas } from './components/DrawingCanvas';
+import { RobotAssistant } from './components/RobotAssistant';
 import { analyzeExperiment, getHint } from './utils/geminiService';
 import { AnalysisResult } from './types';
+import { DrawingTool } from './types/drawing';
 import confetti from 'canvas-confetti';
 
 const nodeTypes = {
@@ -45,7 +46,7 @@ function App_Challenge() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<DrawingTool | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -53,7 +54,6 @@ function App_Challenge() {
 
   // Challenge-specific state
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | null>(null);
-  const [isLoadingChallenge, setIsLoadingChallenge] = useState(false);
 
   // Sample challenges (in production, these would come from API)
   const sampleChallenges: Challenge[] = [
@@ -133,7 +133,7 @@ function App_Challenge() {
     [setNodes]
   );
 
-  const handleToolSelect = (tool: string) => {
+  const handleToolSelect = (tool: DrawingTool | null) => {
     setSelectedTool(tool === selectedTool ? null : tool);
   };
 
@@ -145,9 +145,9 @@ function App_Challenge() {
 
     setIsAnalyzing(true);
     try {
-      const result = await analyzeExperiment(nodes, edges, currentChallenge);
+      const result = await analyzeExperiment(nodes, edges);
       setAnalysisResult(result);
-      
+
       if (result.success) {
         confetti({
           particleCount: 100,
@@ -177,14 +177,13 @@ function App_Challenge() {
   };
 
   const loadChallenge = async (challengeIndex: number) => {
-    setIsLoadingChallenge(true);
     const challenge = sampleChallenges[challengeIndex];
-    
+
     // Simulate loading delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     setCurrentChallenge(challenge);
-    
+
     if (challenge.type === 'scrambled' && challenge.initialNodes && challenge.initialEdges) {
       setNodes(challenge.initialNodes);
       setEdges(challenge.initialEdges);
@@ -193,8 +192,6 @@ function App_Challenge() {
       setNodes([]);
       setEdges([]);
     }
-    
-    setIsLoadingChallenge(false);
   };
 
   const exitChallenge = () => {
@@ -227,11 +224,10 @@ function App_Challenge() {
                   <span className="font-mono text-sm text-accent">
                     {challenge.type === 'scrambled' ? 'TYPE A: SCRAMBLED' : 'TYPE B: BLANK CANVAS'}
                   </span>
-                  <span className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                    challenge.difficulty === 'easy' ? 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400' :
+                  <span className={`px-3 py-1 rounded-lg text-xs font-medium ${challenge.difficulty === 'easy' ? 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400' :
                     challenge.difficulty === 'medium' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400' :
-                    'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400'
-                  }`}>
+                      'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400'
+                    }`}>
                     {challenge.difficulty.toUpperCase()}
                   </span>
                 </div>
@@ -313,34 +309,34 @@ function App_Challenge() {
         >
           <Background color="#27272a" gap={20} />
           <Controls className="bg-zinc-900 border-zinc-800" />
-          <MiniMap 
+          <MiniMap
             nodeColor="#ff4f00"
             maskColor="rgba(0, 0, 0, 0.6)"
             className="bg-zinc-900 border border-zinc-800"
           />
         </ReactFlow>
 
-        <DrawingCanvas 
-          selectedTool={selectedTool}
-          onShapeAdded={(shape) => {
+        <DrawingCanvas
+          currentTool={selectedTool}
+          onShapeComplete={(shape: any) => {
             const newNode: Node = {
               id: `${Date.now()}`,
               type: 'custom',
-              position: { x: shape.x, y: shape.y },
-              data: { label: shape.type, category: 'Drawing' },
+              position: { x: shape.bounds.x, y: shape.bounds.y },
+              data: { label: shape.label, category: 'Drawing' },
             };
             setNodes((nds) => nds.concat(newNode));
             setSelectedTool(null);
           }}
-          canvasRef={reactFlowWrapper}
         />
 
-        <ComponentLibrary 
-          isOpen={isLibraryOpen}
-          onClose={() => setIsLibraryOpen(false)}
+        <ComponentLibrary
+          onDragStart={() => {
+            // Handle drag start if needed
+          }}
         />
 
-        <DrawingToolbar 
+        <DrawingToolbar
           selectedTool={selectedTool}
           onToolSelect={handleToolSelect}
         />
@@ -356,7 +352,7 @@ function App_Challenge() {
       {/* Robot Assistant */}
       {isAssistantOpen && (
         <RobotAssistant
-          onClose={() => setIsAssistantOpen(false)}
+          experimentJSON={{} as any}
           onRequestHint={handleRequestHint}
         />
       )}
