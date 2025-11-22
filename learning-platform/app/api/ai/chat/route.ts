@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth/config"
 import { prisma } from "@/lib/prisma"
-import { queryWithFileSearch } from "@/lib/gemini"
+import { queryWithRAG } from "@/lib/gemini"
 
 export async function POST(req: Request) {
   try {
@@ -82,8 +82,8 @@ export async function POST(req: Request) {
     // Add conversation history to context
     const conversationContext = conversationHistory
       ? conversationHistory
-          .map((msg: any) => `${msg.role === "user" ? "Student" : "AI Teacher"}: ${msg.content}`)
-          .join("\n")
+        .map((msg: any) => `${msg.role === "user" ? "Student" : "AI Teacher"}: ${msg.content}`)
+        .join("\n")
       : ""
 
     // Build user profile for personalization
