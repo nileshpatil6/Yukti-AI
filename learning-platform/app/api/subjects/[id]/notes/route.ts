@@ -58,18 +58,18 @@ export async function POST(
 
     // Create File Search store if it doesn't exist
     let fileSearchStoreName = subject.fileSearchStoreId
-    
+
     if (!fileSearchStoreName) {
       try {
         fileSearchStoreName = await createFileSearchStore(
           `${subject.displayName}-${subject.id}`
         )
-        
+
         subject = await prisma.subject.update({
           where: { id: subject.id },
           data: { fileSearchStoreId: fileSearchStoreName },
         })
-        
+
         console.log(`Created File Search store: ${fileSearchStoreName}`)
       } catch (error) {
         console.error("Error creating File Search store:", error)
@@ -80,11 +80,11 @@ export async function POST(
     // Save file temporarily
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    
+
     const timestamp = Date.now()
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     const tempPath = join(tmpdir(), `${timestamp}-${sanitizedFileName}`)
-    
+
     await writeFile(tempPath, buffer)
 
     let geminiFileName = null
@@ -104,7 +104,7 @@ export async function POST(
               uploadedAt: new Date().toISOString(),
             }
           )
-          
+
           geminiFileName = uploadResult.fileName
           documentId = uploadResult.documentId
           console.log(`File uploaded to File Search: ${geminiFileName}`)
@@ -132,10 +132,10 @@ export async function POST(
         },
       })
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         note,
-        message: geminiFileName 
-          ? "File uploaded and indexed for AI features" 
+        message: geminiFileName
+          ? "File uploaded and indexed for AI features"
           : "File uploaded (AI indexing pending)"
       })
     } finally {
@@ -158,8 +158,9 @@ export async function POST(
 // GET - List all notes for a subject
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
 
@@ -178,7 +179,7 @@ export async function GET(
     const notes = await prisma.note.findMany({
       where: {
         subject: {
-          id: params.id,
+          id,
           userId: user.id,
         },
       },

@@ -74,8 +74,9 @@ export async function GET(
 // DELETE subject
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const session = await getServerSession(authOptions)
 
@@ -93,7 +94,7 @@ export async function DELETE(
 
     await prisma.subject.deleteMany({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     })

@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(
   req: Request,
-  { params }: { params: { topicId: string } }
+  { params }: { params: Promise<{ topicId: string }> }
 ) {
+  const { topicId } = await params;
   try {
     const session = await getServerSession(authOptions)
 
@@ -15,7 +16,7 @@ export async function GET(
     }
 
     const slides = await prisma.slide.findMany({
-      where: { topicId: params.topicId },
+      where: { topicId },
       orderBy: { order: "asc" },
     })
 
