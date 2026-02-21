@@ -15,7 +15,7 @@ export default function Home() {
           className="text-center mb-20"
         >
           <h1 className="font-serif text-7xl md:text-8xl font-normal text-zinc-900 mb-8 tracking-tight">
-            CodeBharat
+            Yukti-AI
           </h1>
           <p className="font-sans text-xl md:text-2xl text-zinc-600 max-w-3xl mx-auto leading-relaxed mb-16">
             Academic excellence meets interactive learning. Build experiments, solve challenges, and master concepts through visual programming.

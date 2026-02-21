@@ -122,7 +122,7 @@ export default function SolveChallengePage() {
               onClick={() => router.push("/dashboard")}
             >
               <Trophy className="w-6 h-6 text-orange-500" />
-              <span className="font-serif text-2xl font-bold text-zinc-900">CodeBharat</span>
+              <span className="font-serif text-2xl font-bold text-zinc-900">Yukti-AI</span>
             </motion.div>
             
             <div className="flex gap-4 items-center">

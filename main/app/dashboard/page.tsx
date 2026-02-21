@@ -3,9 +3,15 @@
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Code, Trophy, Zap, Target, LogOut, User } from "lucide-react";
+
+interface UserProfile {
+  id: string;
+  name: string;
+  age: number;
+  email: string | null;
+}
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
@@ -13,7 +19,7 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,43 +32,49 @@ export default function DashboardPage() {
     }
   }, [user]);
 
-  async function checkUserProfile() {
+  function checkUserProfile() {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.uid)
-      .single();
+    const storageKey = `profile_${user.uid}`;
+    const storedProfile = localStorage.getItem(storageKey);
 
-    if (error || !data) {
+    if (!storedProfile) {
       setShowModal(true);
-    } else {
-      setUserProfile(data);
+      return;
+    }
+
+    try {
+      const parsedProfile: UserProfile = JSON.parse(storedProfile);
+      setUserProfile(parsedProfile);
+      setShowModal(false);
+    } catch (error) {
+      console.error("Invalid local profile data:", error);
+      localStorage.removeItem(storageKey);
+      setShowModal(true);
     }
   }
 
-  async function saveProfile() {
+  function saveProfile() {
     if (!user || !name || !age) return;
 
     setSaving(true);
-    const { error } = await supabase.from("profiles").insert([
-      {
+    try {
+      const profileData: UserProfile = {
         id: user.uid,
-        name: name,
-        age: parseInt(age),
-        email: user.email,
-      },
-    ]);
+        name: name.trim(),
+        age: parseInt(age, 10),
+        email: user.email ?? null,
+      };
 
-    if (error) {
-      console.error("Error saving profile:", error);
-      alert("Failed to save profile. Please try again.");
-    } else {
+      localStorage.setItem(`profile_${user.uid}`, JSON.stringify(profileData));
+      setUserProfile(profileData);
       setShowModal(false);
-      checkUserProfile();
+    } catch (error) {
+      console.error("Error saving local profile:", error);
+      alert("Failed to save profile locally. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   const containerVariants = {

@@ -30,13 +30,12 @@ interface Flashcard {
 
 interface FlashcardSet {
   id: string
-  topicId: string
-  topic: {
-    title: string
-    subject: {
-      name: string
-      color: string
-    }
+  subjectId: string
+  title: string
+  subject: {
+    name: string
+    displayName: string
+    color: string
   }
   cards: Flashcard[]
 }
@@ -153,7 +152,7 @@ export default function FlashcardReviewPage() {
 
             <h1 className="text-4xl font-bold mb-2">Review Complete!</h1>
             <p className="text-xl text-gray-600 mb-8">
-              Great work reviewing {flashcardSet.topic.title}
+              Great work reviewing {flashcardSet.title}
             </p>
 
             {/* Session Stats */}
@@ -247,14 +246,14 @@ export default function FlashcardReviewPage() {
             <Badge
               className="mb-2"
               style={{
-                backgroundColor: flashcardSet.topic.subject.color + "20",
-                color: flashcardSet.topic.subject.color,
-                borderColor: flashcardSet.topic.subject.color + "40",
+                backgroundColor: flashcardSet.subject.color + "20",
+                color: flashcardSet.subject.color,
+                borderColor: flashcardSet.subject.color + "40",
               }}
             >
-              {flashcardSet.topic.subject.name}
+              {flashcardSet.subject.displayName}
             </Badge>
-            <h1 className="text-3xl font-bold mb-2">{flashcardSet.topic.title}</h1>
+            <h1 className="text-3xl font-bold mb-2">{flashcardSet.title}</h1>
             <p className="text-gray-600">
               Reviewing {dueCards.length} card{dueCards.length !== 1 ? "s" : ""}
             </p>

@@ -206,13 +206,16 @@ export default function SubjectDetailPage() {
     setGenerating("game")
 
     try {
+      const gameTypes = ["interactive-quiz", "matching", "memory-cards", "word-scramble", "fill-blank"]
+      const randomGameType = gameTypes[Math.floor(Math.random() * gameTypes.length)]
+
       const response = await fetch("/api/ai/game", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subjectId: subject.id,
           topic: topicName,
-          gameType: "interactive-quiz",
+          gameType: randomGameType,
         }),
       })
 
@@ -242,15 +245,17 @@ export default function SubjectDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subjectId: subject.id,
-          topic: topicTitle || `${subject.displayName} Flashcards`,
+          topicName: topicTitle || `${subject.displayName} Flashcards`,
         }),
       })
 
       const data = await response.json()
 
-      if (data.flashcardSet) {
+      if (response.ok && data.flashcardSet) {
         // Navigate to the flashcard review page
         router.push(`/dashboard/flashcards/${data.flashcardSet.id}/review`)
+      } else {
+        alert(data.error || "Failed to generate flashcards. Please try again.")
       }
     } catch (error) {
       console.error("Error generating flashcards:", error)
@@ -363,11 +368,10 @@ export default function SubjectDetailPage() {
             <Card className="p-8">
               <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-all ${
-                  isDragActive
-                    ? "border-primary bg-primary/5"
-                    : "border-gray-300 hover:border-primary hover:bg-gray-50"
-                }`}
+                className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-all ${isDragActive
+                  ? "border-primary bg-primary/5"
+                  : "border-gray-300 hover:border-primary hover:bg-gray-50"
+                  }`}
               >
                 <input {...getInputProps()} />
                 <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -447,8 +451,8 @@ export default function SubjectDetailPage() {
                   AI-Powered Features
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant="outline"
                     onClick={() => handleGenerateSlides(subject.displayName)}
                     disabled={generating === "slides"}
@@ -456,8 +460,8 @@ export default function SubjectDetailPage() {
                     <Presentation className="mr-2 h-4 w-4" />
                     {generating === "slides" ? "Generating..." : "Generate Slides"}
                   </Button>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant="outline"
                     onClick={() => handleGenerateQuiz(subject.displayName)}
                     disabled={generating === "quiz"}
@@ -465,8 +469,8 @@ export default function SubjectDetailPage() {
                     <Brain className="mr-2 h-4 w-4" />
                     {generating === "quiz" ? "Creating..." : "Create Quiz"}
                   </Button>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     variant="outline"
                     onClick={() => handleGenerateGame(subject.displayName)}
                     disabled={generating === "game"}
@@ -501,8 +505,8 @@ export default function SubjectDetailPage() {
             ) : (
               <div className="grid gap-4">
                 {subject.topics.filter(t => t.slidesGenerated).map((topic) => (
-                  <Card 
-                    key={topic.id} 
+                  <Card
+                    key={topic.id}
                     className="p-6 hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => router.push(`/dashboard/subjects/${subject.id}/topics/${topic.id}/slides`)}
                   >
@@ -536,10 +540,10 @@ export default function SubjectDetailPage() {
                 {subject.topics.filter(t => t.quizGenerated).map((topic) => {
                   // Find the quiz for this topic
                   const quiz = topic.quizzes && topic.quizzes.length > 0 ? topic.quizzes[0] : null;
-                  
+
                   return (
-                    <Card 
-                      key={topic.id} 
+                    <Card
+                      key={topic.id}
                       className="p-6 hover:shadow-md transition-shadow cursor-pointer"
                       onClick={() => {
                         if (quiz) {
@@ -580,10 +584,10 @@ export default function SubjectDetailPage() {
                 {subject.topics.filter(t => t.gameGenerated).map((topic) => {
                   // Find the game for this topic
                   const game = topic.games && topic.games.length > 0 ? topic.games[0] : null;
-                  
+
                   return (
-                    <Card 
-                      key={topic.id} 
+                    <Card
+                      key={topic.id}
                       className="p-6 hover:shadow-md transition-shadow cursor-pointer"
                       onClick={() => {
                         if (game) {

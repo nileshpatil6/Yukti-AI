@@ -169,7 +169,7 @@
 ### 2. Gemini API
 - **Requests**: 60/minute
 - **Daily**: Unlimited
-- **Models**: Latest gemini-2.5-flash
+- **Models**: Latest gemini-2.5-pro
 - **Cost**: $0/month
 
 ### 3. DeepGram API

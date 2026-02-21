@@ -246,7 +246,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ### Gemini API
 - **Requests**: 60/minute (free tier)
-- **Models**: gemini-2.5-flash
+- **Models**: gemini-2.5-pro
 - **No daily limits**
 
 ### DeepGram

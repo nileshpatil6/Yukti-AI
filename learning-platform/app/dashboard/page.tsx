@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
@@ -18,37 +19,73 @@ import {
   Target
 } from "lucide-react"
 
+interface DashboardStats {
+  subjects: number
+  quizzesTaken: number
+  gamesPlayed: number
+  achievements: number
+  currentStreak: number
+  longestStreak: number
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const [stats, setStats] = useState<DashboardStats>({
+    subjects: 0,
+    quizzesTaken: 0,
+    gamesPlayed: 0,
+    achievements: 0,
+    currentStreak: 0,
+    longestStreak: 0,
+  })
+  const [loading, setLoading] = useState(true)
 
-  const stats = [
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/dashboard/stats")
+      const data = await response.json()
+      if (data.stats) {
+        setStats(data.stats)
+      }
+    } catch (error) {
+      console.error("Error fetching stats:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const statCards = [
     {
       name: "Subjects",
-      value: "0",
+      value: stats.subjects.toString(),
       icon: BookOpen,
-      color: "blue",
+      color: "blue" as const,
       action: () => router.push("/dashboard/subjects")
     },
     {
       name: "Quizzes Taken",
-      value: "0",
+      value: stats.quizzesTaken.toString(),
       icon: Brain,
-      color: "purple",
+      color: "purple" as const,
       action: () => router.push("/dashboard/quizzes")
     },
     {
       name: "Games Played",
-      value: "0",
+      value: stats.gamesPlayed.toString(),
       icon: Gamepad2,
-      color: "green",
+      color: "green" as const,
       action: () => router.push("/dashboard/games")
     },
     {
       name: "Achievements",
-      value: "0",
+      value: stats.achievements.toString(),
       icon: Trophy,
-      color: "yellow",
+      color: "yellow" as const,
       action: () => router.push("/dashboard/achievements")
     }
   ]
@@ -74,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat) => {
+        {statCards.map((stat) => {
           const Icon = stat.icon
           const colorClasses = {
             blue: "bg-blue-100 text-blue-600",
@@ -112,7 +149,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-4">
               Keep learning daily to maintain your streak!
             </p>
-            <div className="text-4xl font-bold text-orange-600">0 Days</div>
+            <div className="text-4xl font-bold text-orange-600">{stats.currentStreak} Days</div>
           </div>
           <div className="text-6xl">🔥</div>
         </div>
@@ -162,23 +199,23 @@ export default function DashboardPage() {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-sm font-medium">Weekly Goal</span>
-                <span className="text-sm text-gray-600">0/7 days</span>
+                <span className="text-sm text-gray-600">{stats.currentStreak}/7 days</span>
               </div>
-              <Progress value={0} className="h-2" />
+              <Progress value={(stats.currentStreak / 7) * 100} className="h-2" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Quizzes This Week</span>
-                <span className="text-sm text-gray-600">0/10</span>
+                <span className="text-sm font-medium">Quizzes Taken</span>
+                <span className="text-sm text-gray-600">{stats.quizzesTaken}</span>
               </div>
-              <Progress value={0} className="h-2" />
+              <Progress value={Math.min((stats.quizzesTaken / 10) * 100, 100)} className="h-2" />
             </div>
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">Topics Mastered</span>
-                <span className="text-sm text-gray-600">0</span>
+                <span className="text-sm font-medium">Subjects Created</span>
+                <span className="text-sm text-gray-600">{stats.subjects}</span>
               </div>
-              <Progress value={0} className="h-2" />
+              <Progress value={Math.min((stats.subjects / 5) * 100, 100)} className="h-2" />
             </div>
           </div>
         </Card>

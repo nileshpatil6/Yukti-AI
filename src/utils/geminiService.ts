@@ -68,7 +68,7 @@ Keep your response conversational, encouraging, friendly, and under 120 words. U
       throw new Error('API key not set. Please configure your Gemini API key.');
     }
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
 
     const prompt = `
 You are an expert science and engineering simulation AI. Analyze the following experiment setup and predict the outcome.
@@ -121,7 +121,7 @@ Ensure the response is valid JSON. Do not include any markdown formatting or cod
       throw new Error('API key not set. Please configure your Gemini API key.');
     }
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
 Based on this experiment setup, generate Python code using matplotlib or similar libraries to visualize the expected output.

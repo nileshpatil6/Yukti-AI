@@ -22,7 +22,10 @@ export async function POST(req: Request) {
 
     const { subjectId, topicName } = await req.json()
 
+    console.log("Flashcards request:", { subjectId, topicName })
+
     if (!subjectId || !topicName) {
+      console.log("Missing required fields:", { subjectId, topicName })
       return NextResponse.json(
         { error: "Subject ID and topic name are required" },
         { status: 400 }
@@ -43,10 +46,18 @@ export async function POST(req: Request) {
     })
 
     if (!subject) {
+      console.log("Subject not found:", subjectId)
       return NextResponse.json({ error: "Subject not found" }, { status: 404 })
     }
 
+    console.log("Subject found:", {
+      id: subject.id,
+      fileSearchStoreId: subject.fileSearchStoreId,
+      notesCount: subject.notes.length,
+    })
+
     if (!subject.fileSearchStoreId) {
+      console.log("No fileSearchStoreId for subject:", subject.id)
       return NextResponse.json(
         { error: "No File Search store found. Please upload PDF notes first." },
         { status: 400 }
@@ -54,6 +65,7 @@ export async function POST(req: Request) {
     }
 
     if (subject.notes.length === 0) {
+      console.log("No notes found for subject:", subject.id)
       return NextResponse.json(
         { error: "No notes found in this subject. Please upload notes first." },
         { status: 400 }
@@ -62,7 +74,7 @@ export async function POST(req: Request) {
 
     // Generate flashcards using Gemini File Search
     const flashcardsData = await generateFlashcardsWithFileSearch(
-      topic,
+      topicName,
       subject.fileSearchStoreId
     )
 

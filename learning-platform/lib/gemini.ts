@@ -58,7 +58,7 @@ export async function uploadToFileSearchStore(
     let currentOperation = operation
     let attempts = 0
     const maxAttempts = 60 // 3 minutes max
-    
+
     while (!currentOperation.done && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 3000))
       currentOperation = await genAIWithFileSearch.operations.get({ operation: currentOperation.name })
@@ -92,7 +92,7 @@ export async function queryWithRAG(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
     const systemPrompt = userProfile
       ? `You are an AI tutor with the following personality: ${userProfile.aiPersona}.
@@ -130,13 +130,12 @@ export async function generateSlides(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
-    const prompt = `You are an expert educator creating engaging slides${
-      userProfile
-        ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
-        : ""
-    }.
+    const prompt = `You are an expert educator creating engaging slides${userProfile
+      ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
+      : ""
+      }.
 
 Topic: ${topic}
 
@@ -147,11 +146,10 @@ Create a comprehensive slide deck with 8-12 slides. For each slide, provide:
 1. title: Concise, engaging title
 2. mainPoints: 3-5 key bullet points (keep brief)
 3. visualDescription: Detailed description of what image/diagram should be shown
-4. realWorldExample: A concrete example${
-      userProfile?.interests?.length
+4. realWorldExample: A concrete example${userProfile?.interests?.length
         ? ` relating to: ${userProfile.interests.join(", ")}`
         : ""
-    }
+      }
 5. practiceQuestion: A thought-provoking question
 
 Format your response as a valid JSON array of slide objects. Return ONLY the JSON, no other text.`
@@ -182,7 +180,7 @@ export async function generateQuiz(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
     const prompt = `Generate a ${difficulty} level quiz about "${topic}" with 10 questions based on this content:
 
@@ -230,7 +228,7 @@ export async function generateGame(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
     const prompt = `Create an engaging HTML5 game about "${topic}".
 
@@ -266,7 +264,7 @@ export async function generateFlashcards(topic: string, context: string) {
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
     const prompt = `Create 20 flashcards for the topic "${topic}" based on this content:
 
@@ -308,7 +306,7 @@ export async function generateStudyPlan(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
 
     const personalization = userProfile
       ? `
@@ -393,11 +391,10 @@ export async function generateSlidesWithFileSearch(
       throw new Error("Gemini API not configured")
     }
 
-    const prompt = `You are an expert educator creating engaging slides${
-      userProfile
-        ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
-        : ""
-    }.
+    const prompt = `You are an expert educator creating engaging slides${userProfile
+      ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
+      : ""
+      }.
 
 IMPORTANT: You MUST use ONLY the information from the documents in the file search store. Do NOT use your general knowledge about "${topic}". Extract specific facts, concepts, and details DIRECTLY from the uploaded documents.
 
@@ -407,11 +404,10 @@ Create a comprehensive slide deck with 8-12 slides based EXCLUSIVELY on the cont
 1. title: Concise, engaging title (taken from document sections/headings)
 2. mainPoints: 3-5 key bullet points (MUST be direct facts from the documents, include specific details, numbers, or quotes)
 3. visualDescription: Detailed description of what image/diagram should be shown (based on document content)
-4. realWorldExample: A concrete example from the documents${
-      userProfile?.interests?.length
+4. realWorldExample: A concrete example from the documents${userProfile?.interests?.length
         ? ` relating to: ${userProfile.interests.join(", ")}`
         : ""
-    }
+      }
 5. practiceQuestion: A thought-provoking question based on document content
 
 If the documents don't contain enough information about "${topic}", say so explicitly. Do not make up or infer information not present in the documents.
@@ -430,7 +426,7 @@ Example format:
 ]`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -442,7 +438,7 @@ Example format:
     })
 
     const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-    
+
     if (!text) {
       console.error("No text in File Search response:", JSON.stringify(result, null, 2))
       throw new Error("No response from File Search API")
@@ -499,7 +495,7 @@ If documents lack sufficient content, reduce the number of questions accordingly
 Return ONLY a valid JSON array of question objects. No markdown, no code blocks.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -544,32 +540,105 @@ export async function generateGameWithFileSearch(
       throw new Error("Gemini API not configured")
     }
 
-    const prompt = `IMPORTANT: Create an interactive HTML5 game about "${topic}" of type "${gameType}" using ONLY information extracted from the documents in the file search store.
+    const gameTypePrompts: Record<string, string> = {
+      "interactive-quiz": `Create an engaging quiz game with:
+- Colorful, animated UI with progress bars
+- Timer for each question
+- Visual feedback for correct/wrong answers with animations
+- Score multipliers for speed
+- Celebration confetti on correct answers
+- Final score screen with performance stats`,
 
-The game MUST use specific facts, terms, concepts, and details found in the uploaded documents. Do NOT use generic knowledge about "${topic}".
+      "matching": `Create a drag-and-drop matching game with:
+- Beautiful card designs that flip and animate
+- Smooth drag-and-drop functionality
+- Visual connections when matched correctly
+- Timer and score system
+- Celebration animations on completion
+- Shuffle and restart options`,
 
-The game should be engaging, educational, and fully self-contained in a single HTML file.
+      "memory-cards": `Create a memory card matching game with:
+- Smooth flip card animations
+- Grid layout (4x4 or 4x5)
+- Match pairs of related concepts from documents
+- Move counter and timer
+- Star rating based on performance (3 stars = excellent)
+- Smooth animations and particle effects`,
 
-Requirements:
-- Extract specific information from the provided documents (facts, terms, definitions, concepts)
-- Use ONLY document content for game questions/challenges
-- Include inline CSS for styling (colorful, modern design)
-- Include inline JavaScript for interactivity
-- Make it mobile-friendly
-- Include a score system
-- Add clear instructions
-- Use semantic HTML5
+      "word-scramble": `Create a word scramble game with:
+- Scrambled key terms from documents
+- Drag letters or click to form words
+- Hint system using definitions from documents
+- Multiple difficulty levels
+- Timer and scoring with combos
+- Visual feedback and celebrations`,
 
-Game types and implementations:
-- "interactive-quiz": Multiple choice questions using document facts
-- "matching": Match terms/concepts from documents
-- "fill-blank": Fill blanks with specific terms from documents
-- "word-search": Use key terms and vocabulary from documents
+      "fill-blank": `Create a fill-in-the-blanks game with:
+- Sentences from documents with missing words
+- Word bank to choose from or type answers
+- Drag-and-drop or click to fill
+- Immediate visual feedback
+- Score tracking with streaks
+- Progressive difficulty levels`
+    }
 
-Return ONLY the complete HTML code, no explanation, no markdown code blocks.`
+    const gameInstructions = gameTypePrompts[gameType] || gameTypePrompts["interactive-quiz"]
+
+    const prompt = `Create a FUN, INTERACTIVE, and VISUALLY STUNNING HTML5 game about "${topic}" using information from the documents.
+
+GAME TYPE: ${gameType}
+${gameInstructions}
+
+CRITICAL REQUIREMENTS:
+1. Use ONLY facts, terms, and concepts from the uploaded documents
+2. Make it visually amazing with:
+   - Modern, colorful design with gradients (blues, purples, greens)
+   - Smooth CSS animations and transitions
+   - Responsive layout (mobile-friendly)
+   - Beautiful fonts (use Google Fonts: Inter, Poppins, or Outfit)
+   - Icons and emojis for visual appeal
+   - Card shadows and depth effects
+
+3. Include engaging game mechanics:
+   - Score system with large, animated numbers
+   - Timer with visual countdown (if applicable)
+   - Progress bar showing completion
+   - Particle effects or confetti on success (use canvas or CSS)
+   - Smooth state transitions
+   - Sound effects using Web Audio API (optional)
+
+4. User experience:
+   - Clear, animated instructions at start
+   - Easy-to-use, touch-friendly controls
+   - Immediate visual feedback (green for correct, red for wrong)
+   - Restart/Play Again button with icon
+   - Results screen with:
+     * Final score with animation
+     * Performance message (Excellent!/Good!/Keep Practicing!)
+     * Stars or badges based on score
+     * Share score button (optional)
+
+5. Technical requirements:
+   - Single HTML file with inline CSS and JavaScript
+   - No external dependencies
+   - Semantic HTML5
+   - Modern CSS (flexbox, grid, keyframe animations)
+   - Vanilla JavaScript (ES6+)
+   - Mobile-responsive (use media queries)
+
+DESIGN EXAMPLES:
+- Background: Linear gradient (e.g., #667eea to #764ba2)
+- Buttons: Rounded, with shadows, hover effects, and scale animations
+- Cards: White background, border-radius: 16px, box-shadow
+- Animations: Use transform, opacity, scale for smooth effects
+- Colors: Primary (#667eea), Success (#10b981), Error (#ef4444)
+
+IMPORTANT: Make it look like a modern mobile game, not a basic quiz!
+
+Return ONLY the complete HTML code. No explanations, no markdown code blocks, just pure HTML starting with <!DOCTYPE html>.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -626,7 +695,7 @@ If documents contain insufficient content, create fewer flashcards rather than i
 Return ONLY a valid JSON array of flashcard objects. No markdown, no code blocks.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -686,7 +755,7 @@ Student's question: ${question}
 Provide a clear, helpful answer based on the documents in the file search store. Use specific examples and references from the material. If the answer isn't in the documents, say so and provide general guidance.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-pro",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{

@@ -3,6 +3,10 @@ import { Button } from './Button';
 import { motion } from 'framer-motion';
 
 export const Footer = () => {
+  const handleStartBuilding = () => {
+    window.location.href = "http://localhost:3000/dashboard";
+  };
+
   return (
     <footer className="bg-transparent pt-40 pb-12 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden transition-colors duration-500">
       {/* Giant Background Text */}
@@ -29,7 +33,13 @@ export const Footer = () => {
             <span className="text-zinc-400 dark:text-zinc-600 italic">Future.</span>
           </h2>
           <div className="flex flex-col md:flex-row gap-6">
-            <Button variant="primary" className="h-16 px-12 text-lg rounded-full">Start Building</Button>
+            <Button
+              variant="primary"
+              className="h-16 px-12 text-lg rounded-full"
+              onClick={handleStartBuilding}
+            >
+              Start Building
+            </Button>
             <Button variant="outline" className="h-16 px-12 text-lg rounded-full">Take a Guided Tour</Button>
           </div>
         </div>

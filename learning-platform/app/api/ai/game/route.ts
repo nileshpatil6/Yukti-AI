@@ -49,27 +49,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    // Build context from notes
-    const context = subject.notes
-      .map((note) => `File: ${note.displayName}\nContent: [Note content placeholder]`)
-      .join("\n\n")
-
-    // Generate game HTML using AI
-    const htmlContent = await generateGame(topic, gameType, context)
+    // Generate game HTML using AI with File Search
+    const htmlContent = await generateGameWithFileSearch(
+      topic,
+      gameType,
+      subject.fileSearchStoreId
+    )
 
     // Create or find topic
     let topicRecord = await prisma.topic.findFirst({
       where: {
         subjectId: subject.id,
-        title: topic,
+        name: topic,
       },
     })
 
     if (!topicRecord) {
+      const topicCount = await prisma.topic.count({
+        where: { subjectId: subject.id },
+      })
+
       topicRecord = await prisma.topic.create({
         data: {
           subjectId: subject.id,
-          title: topic,
+          name: topic,
+          order: topicCount + 1,
         },
       })
     }
@@ -78,7 +82,9 @@ export async function POST(req: Request) {
     const game = await prisma.game.create({
       data: {
         topicId: topicRecord.id,
-        gameType,
+        title: `${topic} - ${gameType}`,
+        description: `Interactive ${gameType} game for ${topic}`,
+        type: gameType,
         htmlContent,
       },
     })
@@ -87,14 +93,27 @@ export async function POST(req: Request) {
       game: {
         id: game.id,
         topicId: game.topicId,
-        gameType: game.gameType,
+        type: game.type,
+        title: game.title,
       },
       message: "Game generated successfully",
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating game:", error)
+
+    // Provide more specific error messages
+    let errorMessage = "Failed to generate game"
+
+    if (error.message?.includes("fetch failed")) {
+      errorMessage = "Network error: Unable to connect to Gemini API. Please check your internet connection or try again later."
+    } else if (error.message?.includes("API key")) {
+      errorMessage = "Invalid or missing Gemini API key. Please check your configuration."
+    } else if (error.message?.includes("quota")) {
+      errorMessage = "API quota exceeded. Please try again later."
+    }
+
     return NextResponse.json(
-      { error: "Failed to generate game" },
+      { error: errorMessage, details: error.message },
       { status: 500 }
     )
   }

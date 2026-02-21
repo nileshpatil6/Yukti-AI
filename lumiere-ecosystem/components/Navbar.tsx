@@ -8,6 +8,9 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const handleStartBuilding = () => {
+    window.location.href = "http://localhost:3000/dashboard";
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,7 +84,7 @@ export const Navbar = () => {
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <a href="https://play-yukti.vercel.app" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
+              <a href="http://localhost:3000/dashboard" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
                 Student Login
               </a>
               
@@ -137,7 +140,13 @@ export const Navbar = () => {
               ))}
             </div>
             <div className="mt-auto">
-              <Button variant="primary" className="w-full py-6 text-lg">Start Building</Button>
+              <Button
+                variant="primary"
+                className="w-full py-6 text-lg"
+                onClick={handleStartBuilding}
+              >
+                Start Building
+              </Button>
             </div>
           </motion.div>
         )}

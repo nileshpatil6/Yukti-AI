@@ -7,6 +7,9 @@ export const Hero = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const handleStartBuilding = () => {
+    window.location.href = "http://localhost:3000/dashboard";
+  };
 
   return (
     <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-500">
@@ -84,7 +87,12 @@ export const Hero = () => {
              transition={{ duration: 0.5, delay: 0.8 }}
              className="flex flex-col sm:flex-row items-center gap-6"
           >
-            <Button variant="primary" icon className="h-14 px-8 text-base min-w-[220px]">
+            <Button
+              variant="primary"
+              icon
+              className="h-14 px-8 text-base min-w-[220px]"
+              onClick={handleStartBuilding}
+            >
               Start Building
             </Button>
             <button className="group flex items-center gap-4 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors px-6 py-4 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
