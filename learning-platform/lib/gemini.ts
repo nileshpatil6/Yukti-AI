@@ -92,7 +92,7 @@ export async function queryWithRAG(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const systemPrompt = userProfile
       ? `You are an AI tutor with the following personality: ${userProfile.aiPersona}.
@@ -130,7 +130,7 @@ export async function generateSlides(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `You are an expert educator creating engaging slides${userProfile
       ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
@@ -180,7 +180,7 @@ export async function generateQuiz(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `Generate a ${difficulty} level quiz about "${topic}" with 10 questions based on this content:
 
@@ -228,7 +228,7 @@ export async function generateGame(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `Create an engaging HTML5 game about "${topic}".
 
@@ -264,7 +264,7 @@ export async function generateFlashcards(topic: string, context: string) {
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const prompt = `Create 20 flashcards for the topic "${topic}" based on this content:
 
@@ -306,7 +306,7 @@ export async function generateStudyPlan(
     if (!genAI) {
       throw new Error("Gemini API not configured")
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
     const personalization = userProfile
       ? `
@@ -426,7 +426,7 @@ Example format:
 ]`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -495,7 +495,7 @@ If documents lack sufficient content, reduce the number of questions accordingly
 Return ONLY a valid JSON array of question objects. No markdown, no code blocks.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -638,7 +638,7 @@ IMPORTANT: Make it look like a modern mobile game, not a basic quiz!
 Return ONLY the complete HTML code. No explanations, no markdown code blocks, just pure HTML starting with <!DOCTYPE html>.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -695,7 +695,7 @@ If documents contain insufficient content, create fewer flashcards rather than i
 Return ONLY a valid JSON array of flashcard objects. No markdown, no code blocks.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
@@ -755,7 +755,7 @@ Student's question: ${question}
 Provide a clear, helpful answer based on the documents in the file search store. Use specific examples and references from the material. If the answer isn't in the documents, say so and provide general guidance.`
 
     const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       config: {
         tools: [{
