@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export const Footer = () => {
   const handleStartBuilding = () => {
-    window.location.href = "http://localhost:3000/dashboard";
+    window.location.href = "http://localhost:3001/login";
   };
 
   return (

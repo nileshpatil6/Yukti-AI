@@ -8,7 +8,7 @@ export const Hero = () => {
   const y = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const handleStartBuilding = () => {
-    window.location.href = "http://localhost:3000/dashboard";
+    window.location.href = "http://localhost:3001/login";
   };
 
   return (

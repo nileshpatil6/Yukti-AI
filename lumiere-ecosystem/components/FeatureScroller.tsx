@@ -64,7 +64,7 @@ interface FeatureSectionProps {
 
 const FeatureSection: React.FC<FeatureSectionProps> = ({ feature, index, total }) => {
   return (
-    <div className="min-h-screen sticky top-0 flex items-center justify-center py-20">
+    <div className="min-h-screen sticky top-0 flex items-center justify-center py-20 bg-white dark:bg-zinc-950">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full items-center">
         
         {/* Text Content */}

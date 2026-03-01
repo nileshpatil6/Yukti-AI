@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash", "gemini-2.5-flash"];
 
 export async function POST(request: NextRequest) {
   try {
     const { category, difficulty, count } = await request.json();
+    const normalizedCount = Number(count);
 
     if (!GEMINI_API_KEY) {
       return NextResponse.json(
@@ -12,8 +14,20 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+    if (!category || !difficulty || !Number.isFinite(normalizedCount)) {
+      return NextResponse.json(
+        { error: "Invalid request payload. category, difficulty and count are required." },
+        { status: 400 }
+      );
+    }
+    if (normalizedCount < 1 || normalizedCount > 20) {
+      return NextResponse.json(
+        { error: "Count must be between 1 and 20." },
+        { status: 400 }
+      );
+    }
 
-    const prompt = `Generate ${count} ${difficulty} level ${category} questions that can be solved by drawing on a canvas or creating diagrams/circuits/graphs.
+    const prompt = `Generate ${normalizedCount} ${difficulty} level ${category} questions that can be solved by drawing on a canvas or creating diagrams/circuits/graphs.
 
 Each question should be suitable for visual problem-solving where the user can draw their answer.
 
@@ -39,38 +53,53 @@ Examples based on category:
 
 Make questions creative, educational, and suitable for canvas drawing. Return ONLY valid JSON, no additional text.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.9,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          },
-        }),
-      }
-    );
+    let data: any = null;
+    let lastGeminiError = "";
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.statusText}`);
+    for (const model of GEMINI_MODELS) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 2048,
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        data = await response.json();
+        break;
+      }
+
+      const errorBody = await response.text();
+      lastGeminiError = `Model ${model} failed (${response.status} ${response.statusText}): ${errorBody}`;
+      console.error(lastGeminiError);
+
+      if (response.status !== 400 && response.status !== 404) {
+        break;
+      }
     }
 
-    const data = await response.json();
+    if (!data) {
+      throw new Error(`Gemini API error: ${lastGeminiError || "No compatible model responded successfully."}`);
+    }
     
     let generatedText = data.candidates[0]?.content?.parts[0]?.text || "";
     
@@ -97,7 +126,7 @@ Make questions creative, educational, and suitable for canvas drawing. Return ON
     }
 
     // Ensure each question has required fields
-    const validatedQuestions = questions.slice(0, count).map((q, index) => ({
+    const validatedQuestions = questions.slice(0, normalizedCount).map((q, index) => ({
       question: q.question || `Question ${index + 1}`,
       description: q.description || "",
       difficulty: q.difficulty || difficulty,

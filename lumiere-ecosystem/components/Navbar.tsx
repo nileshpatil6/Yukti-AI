@@ -9,7 +9,7 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const handleStartBuilding = () => {
-    window.location.href = "http://localhost:3000/dashboard";
+    window.location.href = "http://localhost:3001/login";
   };
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export const Navbar = () => {
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <a href="http://localhost:3000/dashboard" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
+              <a href="http://localhost:3001/login" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
                 Student Login
               </a>
               
