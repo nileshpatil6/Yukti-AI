@@ -1,0 +1,22 @@
+service: bedrock-proxy
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1 # Or your preferred AWS region
+  environment:
+    BEDROCK_BASE_URL: https://bedrock-mantle.eu-north-1.api.aws/v1
+    BEDROCK_API_KEY: ${env:BEDROCK_API_KEY, ''}
+
+functions:
+  api:
+    handler: lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true

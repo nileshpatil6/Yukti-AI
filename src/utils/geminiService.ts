@@ -1,13 +1,13 @@
 import { ExperimentJSON, AnalysisResult } from '../types';
 
-// In dev: Vite proxy at /api/bedrock forwards to Bedrock API
-// In production: configure your hosting to proxy /api/bedrock to the Bedrock endpoint
-const BEDROCK_PROXY_URL = '/api/bedrock';
+const BEDROCK_BASE_URL = import.meta.env.VITE_OPENAI_BASE_URL || 'https://bedrock-mantle.eu-north-1.api.aws/v1';
+const BEDROCK_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
 async function bedrockChat(messages: Array<{ role: string; content: string }>, model: string = 'deepseek.v3.2'): Promise<string> {
-  const response = await fetch(`${BEDROCK_PROXY_URL}/chat/completions`, {
+  const response = await fetch(`${BEDROCK_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${BEDROCK_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({

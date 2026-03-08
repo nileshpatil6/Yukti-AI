@@ -1,0 +1,15 @@
+{
+    "name": "bedrock-proxy",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "node server.js",
+        "build": "npm install --production"
+    },
+    "dependencies": {
+        "express": "^4.21.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "serverless-http": "^3.2.0"
+    }
+}
