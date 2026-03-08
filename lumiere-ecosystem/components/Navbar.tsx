@@ -9,7 +9,7 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const handleStartBuilding = () => {
-    window.location.href = "http://localhost:3001/login";
+    window.location.href = "https://main.d1hvp1lq9dt37i.amplifyapp.com/";
   };
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export const Navbar = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
-    
+
     // Check local storage or system preference
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
@@ -44,7 +44,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav 
+      <nav
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
           scrolled ? "py-4" : "py-8"
@@ -66,8 +66,8 @@ export const Navbar = () => {
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-1">
               {['Curriculum', 'Labs', 'Research', 'Manifesto'].map((item) => (
-                <a 
-                  key={item} 
+                <a
+                  key={item}
                   href={`#${item.toLowerCase()}`}
                   className="px-5 py-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors font-medium rounded-full hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
                 >
@@ -84,21 +84,21 @@ export const Navbar = () => {
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <a href="http://localhost:3001/login" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
-                Student Login
+              <a href="https://main.d1hvp1lq9dt37i.amplifyapp.com/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
+                Start Building
               </a>
-              
+
             </div>
 
             {/* Mobile Toggle */}
             <div className="flex items-center gap-4 md:hidden">
-               <button
+              <button
                 onClick={toggleTheme}
                 className="p-2 text-zinc-500 dark:text-zinc-400"
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <button 
+              <button
                 className="text-zinc-900 dark:text-white p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
               >
@@ -112,7 +112,7 @@ export const Navbar = () => {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -126,7 +126,7 @@ export const Navbar = () => {
             </div>
             <div className="flex flex-col gap-6">
               {['Curriculum', 'Labs', 'Research', 'Manifesto'].map((item, i) => (
-                <motion.a 
+                <motion.a
                   key={item}
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}

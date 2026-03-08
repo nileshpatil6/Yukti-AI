@@ -8,17 +8,23 @@ const BEDROCK_BASE_URL = process.env.BEDROCK_BASE_URL || 'https://bedrock-mantle
 const BEDROCK_API_KEY = process.env.BEDROCK_API_KEY || '';
 const PORT = process.env.PORT || 3099;
 
-// Allow all origins
-app.use(cors());
+// Allow all origins explicitly
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+app.options('*', cors()); // Automatically reply to OPTIONS requests
+
 app.use(express.json({ limit: '10mb' }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('*/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Proxy all POST requests to Bedrock
-app.post('/v1/chat/completions', async (req, res) => {
+// Proxy POST requests to Bedrock, ignoring any API Gateway path prefixes
+app.post('*/chat/completions', async (req, res) => {
     try {
         const response = await fetch(`${BEDROCK_BASE_URL}/chat/completions`, {
             method: 'POST',
