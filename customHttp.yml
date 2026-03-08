@@ -1,0 +1,11 @@
+customHeaders:
+  - pattern: '**/*'
+    headers:
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000; includeSubDomains'
+
+customRules:
+  - source: '/api/bedrock/<*>'
+    target: 'https://bedrock-mantle.eu-north-1.api.aws/v1/<*>'
+    status: '200'
+    condition: null

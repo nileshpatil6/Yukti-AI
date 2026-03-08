@@ -1,11 +1,11 @@
 import { ExperimentJSON, AnalysisResult } from '../types';
 
-// In development, requests go through Vite proxy at /api/bedrock
-// In production, set VITE_API_PROXY_URL to your deployed Next.js API URL
-const BEDROCK_PROXY_URL = import.meta.env.VITE_API_PROXY_URL || '/api/bedrock';
+// In dev: Vite proxy at /api/bedrock forwards to Bedrock API
+// In production: configure your hosting to proxy /api/bedrock to the Bedrock endpoint
+const BEDROCK_PROXY_URL = '/api/bedrock';
 
 async function bedrockChat(messages: Array<{ role: string; content: string }>, model: string = 'deepseek.v3.2'): Promise<string> {
-  const response = await fetch(BEDROCK_PROXY_URL, {
+  const response = await fetch(`${BEDROCK_PROXY_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
