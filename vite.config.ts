@@ -9,12 +9,9 @@ export default defineConfig(({ mode }) => {
       port: 5000,
       proxy: {
         '/api/bedrock': {
-          target: env.VITE_OPENAI_BASE_URL || 'https://bedrock-mantle.eu-north-1.api.aws/v1',
+          target: 'http://localhost:3001',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/bedrock/, ''),
-          headers: {
-            'Authorization': `Bearer ${env.VITE_OPENAI_API_KEY || ''}`,
-          },
+          rewrite: (path) => path.replace(/^\/api\/bedrock/, '/api/ai/proxy'),
         },
       },
     },
