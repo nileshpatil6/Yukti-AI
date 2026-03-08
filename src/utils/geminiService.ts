@@ -1,21 +1,37 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ExperimentJSON, AnalysisResult } from '../types';
 
-export class GeminiService {
-  private genAI: GoogleGenerativeAI | null = null;
+const BEDROCK_BASE_URL = import.meta.env.VITE_OPENAI_BASE_URL || 'https://bedrock-mantle.eu-north-1.api.aws/v1';
+const BEDROCK_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
-  setApiKey(apiKey: string) {
-    this.genAI = new GoogleGenerativeAI(apiKey);
+async function bedrockChat(messages: Array<{ role: string; content: string }>, model: string = 'deepseek.v3.2'): Promise<string> {
+  const response = await fetch(`${BEDROCK_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${BEDROCK_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Bedrock API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+export class GeminiService {
+  // setApiKey is kept for backward compatibility but is no longer needed
+  setApiKey(_apiKey: string) {
+    // No-op: Bedrock uses a fixed API key
   }
 
   async getHint(experimentJSON: ExperimentJSON, userQuestion: string): Promise<string> {
-    if (!this.genAI) {
-      throw new Error('API key not set. Please configure your Gemini API key.');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-    // Summarize the experiment context for better understanding
     const nodeCount = experimentJSON.nodes.length;
     const edgeCount = experimentJSON.edges.length;
     const categories = [...new Set(experimentJSON.nodes.map(n => n.data.component.category))];
@@ -55,21 +71,13 @@ Keep your response conversational, encouraging, friendly, and under 120 words. U
 `;
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      return await bedrockChat([{ role: 'user', content: prompt }]);
     } catch (error) {
       throw new Error(`Failed to get hint: ${error}`);
     }
   }
 
   async analyzeExperiment(experimentJSON: ExperimentJSON): Promise<AnalysisResult> {
-    if (!this.genAI) {
-      throw new Error('API key not set. Please configure your Gemini API key.');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
-
     const prompt = `
 You are an expert science and engineering simulation AI. Analyze the following experiment setup and predict the outcome.
 
@@ -95,17 +103,14 @@ Ensure the response is valid JSON. Do not include any markdown formatting or cod
 `;
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      const text = await bedrockChat([{ role: 'user', content: prompt }], 'deepseek.v3.2');
 
       // Clean up potential markdown code blocks
       const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
 
       return JSON.parse(cleanText) as AnalysisResult;
     } catch (error) {
-      console.error("Gemini Analysis Error:", error);
-      // Fallback error result
+      console.error("Bedrock Analysis Error:", error);
       return {
         success: false,
         title: "Analysis Error",
@@ -117,12 +122,6 @@ Ensure the response is valid JSON. Do not include any markdown formatting or cod
   }
 
   async generateVisualization(experimentJSON: ExperimentJSON): Promise<string> {
-    if (!this.genAI) {
-      throw new Error('API key not set. Please configure your Gemini API key.');
-    }
-
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
     const prompt = `
 Based on this experiment setup, generate Python code using matplotlib or similar libraries to visualize the expected output.
 
@@ -134,9 +133,7 @@ Only return the code, no explanations.
 `;
 
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      return await bedrockChat([{ role: 'user', content: prompt }]);
     } catch (error) {
       throw new Error(`Failed to generate visualization: ${error}`);
     }

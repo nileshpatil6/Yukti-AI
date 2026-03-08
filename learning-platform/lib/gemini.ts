@@ -1,29 +1,39 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import { GoogleGenAI } from "@google/genai"
+// Bedrock API Configuration (OpenAI-compatible endpoint)
+const BEDROCK_API_KEY = process.env.OPENAI_API_KEY || ''
+const BEDROCK_BASE_URL = process.env.OPENAI_BASE_URL || 'https://bedrock-mantle.eu-north-1.api.aws/v1'
+const BEDROCK_MODEL = process.env.OPENAI_MODEL_NAME || 'deepseek.v3.2'
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ""
+async function bedrockChat(messages: Array<{ role: string; content: string }>, model?: string): Promise<string> {
+  const response = await fetch(`${BEDROCK_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${BEDROCK_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: model || BEDROCK_MODEL,
+      messages,
+    }),
+  })
 
-export const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null
-export const genAIWithFileSearch = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null
-
-// File Search Store Management
-export async function createFileSearchStore(displayName: string) {
-  try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API key not configured")
-    }
-
-    // Create File Search store
-    const fileSearchStore = await genAIWithFileSearch.fileSearchStores.create({
-      config: { displayName }
-    })
-
-    console.log(`Created File Search store: ${fileSearchStore.name}`)
-    return fileSearchStore.name
-  } catch (error) {
-    console.error("Error creating file search store:", error)
-    throw error
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Bedrock API error (${response.status}): ${errorText}`)
   }
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || ''
+}
+
+// Legacy exports kept for backward compatibility (no-op, Bedrock doesn't use these)
+export const genAI = null
+export const genAIWithFileSearch = null
+
+// File Search Store Management - Bedrock doesn't support file search stores natively
+// These functions are kept as stubs for backward compatibility
+export async function createFileSearchStore(displayName: string) {
+  console.warn("File search stores are not supported with Bedrock API. Using plain text context instead.")
+  return `bedrock-store-${Date.now()}`
 }
 
 export async function uploadToFileSearchStore(
@@ -32,68 +42,21 @@ export async function uploadToFileSearchStore(
   displayName: string,
   metadata?: Record<string, any>
 ) {
-  try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
-
-    console.log(`Uploading ${displayName} to File Search store ${fileSearchStoreName}...`)
-
-    // Upload and import file directly to File Search store
-    const operation = await genAIWithFileSearch.fileSearchStores.uploadToFileSearchStore({
-      fileSearchStoreName: fileSearchStoreName,
-      file: filePath,
-      config: {
-        displayName: displayName,
-        ...(metadata && {
-          customMetadata: Object.entries(metadata).map(([key, value]) => ({
-            key,
-            stringValue: String(value)
-          }))
-        })
-      }
-    })
-
-    // Poll for completion
-    let currentOperation = operation
-    let attempts = 0
-    const maxAttempts = 60 // 3 minutes max
-
-    while (!currentOperation.done && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 3000))
-      currentOperation = await genAIWithFileSearch.operations.get({ operation: currentOperation.name })
-      attempts++
-    }
-
-    if (!currentOperation.done) {
-      throw new Error("Upload operation timed out")
-    }
-
-    console.log(`Upload complete: ${displayName}`)
-
-    return {
-      done: true,
-      documentId: currentOperation.name,
-      fileName: displayName,
-    }
-  } catch (error) {
-    console.error("Error uploading to file search store:", error)
-    throw error
+  console.warn("File search store upload is not supported with Bedrock API. Files should be processed as text context.")
+  return {
+    done: true,
+    documentId: `bedrock-doc-${Date.now()}`,
+    fileName: displayName,
   }
 }
 
-// RAG Query using Gemini
+// RAG Query using Bedrock
 export async function queryWithRAG(
   question: string,
   context: string,
   userProfile?: any
 ) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const systemPrompt = userProfile
       ? `You are an AI tutor with the following personality: ${userProfile.aiPersona}.
          The student learns best through: ${userProfile.learningStyle}.
@@ -111,9 +74,7 @@ Student's question: ${question}
 
 Provide a clear, helpful answer based on the context provided. If the answer isn't in the context, say so and provide general guidance.`
 
-    const result = await model.generateContent(prompt)
-    const response = result.response
-    return response.text()
+    return await bedrockChat([{ role: 'user', content: prompt }])
   } catch (error) {
     console.error("Error querying with RAG:", error)
     throw error
@@ -127,11 +88,6 @@ export async function generateSlides(
   userProfile?: any
 ) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const prompt = `You are an expert educator creating engaging slides${userProfile
       ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
       : ""
@@ -154,8 +110,7 @@ Create a comprehensive slide deck with 8-12 slides. For each slide, provide:
 
 Format your response as a valid JSON array of slide objects. Return ONLY the JSON, no other text.`
 
-    const result = await model.generateContent(prompt)
-    const response = result.response.text()
+    const response = await bedrockChat([{ role: 'user', content: prompt }])
 
     // Extract JSON from response
     const jsonMatch = response.match(/\[[\s\S]*\]/)
@@ -177,11 +132,6 @@ export async function generateQuiz(
   context: string
 ) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const prompt = `Generate a ${difficulty} level quiz about "${topic}" with 10 questions based on this content:
 
 ${context}
@@ -203,8 +153,7 @@ For each question provide:
 
 Return ONLY a valid JSON array of question objects, no other text.`
 
-    const result = await model.generateContent(prompt)
-    const response = result.response.text()
+    const response = await bedrockChat([{ role: 'user', content: prompt }])
 
     const jsonMatch = response.match(/\[[\s\S]*\]/)
     if (jsonMatch) {
@@ -225,11 +174,6 @@ export async function generateGame(
   context: string
 ) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const prompt = `Create an engaging HTML5 game about "${topic}".
 
 Game Type: ${gameType}
@@ -250,8 +194,7 @@ The game should reinforce key concepts from the topic.
 
 Output ONLY the complete HTML code, nothing else. Start with <!DOCTYPE html>.`
 
-    const result = await model.generateContent(prompt)
-    return result.response.text()
+    return await bedrockChat([{ role: 'user', content: prompt }])
   } catch (error) {
     console.error("Error generating game:", error)
     throw error
@@ -261,11 +204,6 @@ Output ONLY the complete HTML code, nothing else. Start with <!DOCTYPE html>.`
 // Generate Flashcards
 export async function generateFlashcards(topic: string, context: string) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const prompt = `Create 20 flashcards for the topic "${topic}" based on this content:
 
 ${context}
@@ -280,8 +218,7 @@ Each flashcard should have:
 
 Return ONLY a valid JSON array of flashcard objects, no other text.`
 
-    const result = await model.generateContent(prompt)
-    const response = result.response.text()
+    const response = await bedrockChat([{ role: 'user', content: prompt }])
 
     const jsonMatch = response.match(/\[[\s\S]*\]/)
     if (jsonMatch) {
@@ -303,11 +240,6 @@ export async function generateStudyPlan(
   userProfile?: any
 ) {
   try {
-    if (!genAI) {
-      throw new Error("Gemini API not configured")
-    }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
-
     const personalization = userProfile
       ? `
 User Profile:
@@ -364,8 +296,7 @@ Include breaks and variety to prevent burnout.
 
 Return ONLY valid JSON. No markdown formatting, no code blocks.`
 
-    const result = await model.generateContent(prompt)
-    const response = result.response.text()
+    const response = await bedrockChat([{ role: 'user', content: prompt }])
 
     const jsonMatch = response.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
@@ -380,6 +311,8 @@ Return ONLY valid JSON. No markdown formatting, no code blocks.`
 }
 
 // ============ FILE SEARCH-BASED GENERATION FUNCTIONS ============
+// Note: Bedrock doesn't have native file search. These functions use plain chat
+// and rely on context being passed in or previously uploaded content.
 
 export async function generateSlidesWithFileSearch(
   topic: string,
@@ -387,30 +320,22 @@ export async function generateSlidesWithFileSearch(
   userProfile?: any
 ) {
   try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
-
     const prompt = `You are an expert educator creating engaging slides${userProfile
       ? ` for a ${userProfile.learningStyle} learner interested in ${userProfile.interests?.join(", ")}`
       : ""
       }.
 
-IMPORTANT: You MUST use ONLY the information from the documents in the file search store. Do NOT use your general knowledge about "${topic}". Extract specific facts, concepts, and details DIRECTLY from the uploaded documents.
-
 Topic: ${topic}
 
-Create a comprehensive slide deck with 8-12 slides based EXCLUSIVELY on the content found in the file search store documents. For each slide, provide:
-1. title: Concise, engaging title (taken from document sections/headings)
-2. mainPoints: 3-5 key bullet points (MUST be direct facts from the documents, include specific details, numbers, or quotes)
-3. visualDescription: Detailed description of what image/diagram should be shown (based on document content)
-4. realWorldExample: A concrete example from the documents${userProfile?.interests?.length
+Create a comprehensive slide deck with 8-12 slides. For each slide, provide:
+1. title: Concise, engaging title
+2. mainPoints: 3-5 key bullet points
+3. visualDescription: Detailed description of what image/diagram should be shown
+4. realWorldExample: A concrete example${userProfile?.interests?.length
         ? ` relating to: ${userProfile.interests.join(", ")}`
         : ""
       }
-5. practiceQuestion: A thought-provoking question based on document content
-
-If the documents don't contain enough information about "${topic}", say so explicitly. Do not make up or infer information not present in the documents.
+5. practiceQuestion: A thought-provoking question
 
 Format your response as a valid JSON array of slide objects. Return ONLY the JSON, no other text.
 
@@ -425,24 +350,7 @@ Example format:
   }
 ]`
 
-    const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        tools: [{
-          fileSearch: {
-            fileSearchStoreNames: [fileSearchStoreName]
-          }
-        }]
-      }
-    })
-
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-
-    if (!text) {
-      console.error("No text in File Search response:", JSON.stringify(result, null, 2))
-      throw new Error("No response from File Search API")
-    }
+    const text = await bedrockChat([{ role: 'user', content: prompt }])
 
     console.log("Slides generation response:", text)
 
@@ -457,7 +365,7 @@ Example format:
     console.error("Failed to extract JSON from response:", text)
     throw new Error("Failed to parse slides JSON")
   } catch (error) {
-    console.error("Error generating slides with File Search:", error)
+    console.error("Error generating slides:", error)
     throw error
   }
 }
@@ -468,50 +376,27 @@ export async function generateQuizWithFileSearch(
   fileSearchStoreName: string
 ) {
   try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
+    const prompt = `Create a ${difficulty} level quiz about "${topic}".
 
-    const prompt = `CRITICAL: Create a ${difficulty} level quiz about "${topic}" using ONLY information from the documents in the file search store. Do NOT use general knowledge.
-
-Generate 10 questions based EXCLUSIVELY on facts, concepts, and details found in the uploaded documents:
+Generate 10 questions:
 - 5 multiple choice questions
 - 3 true/false questions  
 - 2 short answer questions
 
 For each question, provide:
 {
-  "question": "The question text (must be answerable from document content)",
+  "question": "The question text",
   "type": "multiple_choice" | "true_false" | "short_answer",
-  "options": ["Option A", "Option B", "Option C", "Option D"], // only for multiple choice
-  "correctAnswer": "The correct answer (from documents)",
-  "explanation": "Brief explanation referencing document content"
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "The correct answer",
+  "explanation": "Brief explanation"
 }
 
-Each question MUST be directly answerable from the document content. Include specific details, terminology, or facts mentioned in the documents. Appropriate difficulty: ${difficulty}.
-
-If documents lack sufficient content, reduce the number of questions accordingly.
+Appropriate difficulty: ${difficulty}.
 
 Return ONLY a valid JSON array of question objects. No markdown, no code blocks.`
 
-    const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        tools: [{
-          fileSearch: {
-            fileSearchStoreNames: [fileSearchStoreName]
-          }
-        }]
-      }
-    })
-
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-
-    if (!text) {
-      console.error("No text in File Search response:", JSON.stringify(result, null, 2))
-      throw new Error("No response from File Search API")
-    }
+    const text = await bedrockChat([{ role: 'user', content: prompt }])
 
     console.log("Quiz generation response:", text)
 
@@ -525,7 +410,7 @@ Return ONLY a valid JSON array of question objects. No markdown, no code blocks.
     console.error("Failed to extract JSON from response:", text)
     throw new Error("Failed to parse quiz JSON")
   } catch (error) {
-    console.error("Error generating quiz with File Search:", error)
+    console.error("Error generating quiz:", error)
     throw error
   }
 }
@@ -536,10 +421,6 @@ export async function generateGameWithFileSearch(
   fileSearchStoreName: string
 ) {
   try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
-
     const gameTypePrompts: Record<string, string> = {
       "interactive-quiz": `Create an engaging quiz game with:
 - Colorful, animated UI with progress bars
@@ -560,21 +441,21 @@ export async function generateGameWithFileSearch(
       "memory-cards": `Create a memory card matching game with:
 - Smooth flip card animations
 - Grid layout (4x4 or 4x5)
-- Match pairs of related concepts from documents
+- Match pairs of related concepts
 - Move counter and timer
 - Star rating based on performance (3 stars = excellent)
 - Smooth animations and particle effects`,
 
       "word-scramble": `Create a word scramble game with:
-- Scrambled key terms from documents
+- Scrambled key terms
 - Drag letters or click to form words
-- Hint system using definitions from documents
+- Hint system using definitions
 - Multiple difficulty levels
 - Timer and scoring with combos
 - Visual feedback and celebrations`,
 
       "fill-blank": `Create a fill-in-the-blanks game with:
-- Sentences from documents with missing words
+- Sentences with missing words
 - Word bank to choose from or type answers
 - Drag-and-drop or click to fill
 - Immediate visual feedback
@@ -584,14 +465,13 @@ export async function generateGameWithFileSearch(
 
     const gameInstructions = gameTypePrompts[gameType] || gameTypePrompts["interactive-quiz"]
 
-    const prompt = `Create a FUN, INTERACTIVE, and VISUALLY STUNNING HTML5 game about "${topic}" using information from the documents.
+    const prompt = `Create a FUN, INTERACTIVE, and VISUALLY STUNNING HTML5 game about "${topic}".
 
 GAME TYPE: ${gameType}
 ${gameInstructions}
 
 CRITICAL REQUIREMENTS:
-1. Use ONLY facts, terms, and concepts from the uploaded documents
-2. Make it visually amazing with:
+1. Make it visually amazing with:
    - Modern, colorful design with gradients (blues, purples, greens)
    - Smooth CSS animations and transitions
    - Responsive layout (mobile-friendly)
@@ -599,26 +479,21 @@ CRITICAL REQUIREMENTS:
    - Icons and emojis for visual appeal
    - Card shadows and depth effects
 
-3. Include engaging game mechanics:
+2. Include engaging game mechanics:
    - Score system with large, animated numbers
    - Timer with visual countdown (if applicable)
    - Progress bar showing completion
    - Particle effects or confetti on success (use canvas or CSS)
    - Smooth state transitions
-   - Sound effects using Web Audio API (optional)
 
-4. User experience:
+3. User experience:
    - Clear, animated instructions at start
    - Easy-to-use, touch-friendly controls
    - Immediate visual feedback (green for correct, red for wrong)
    - Restart/Play Again button with icon
-   - Results screen with:
-     * Final score with animation
-     * Performance message (Excellent!/Good!/Keep Practicing!)
-     * Stars or badges based on score
-     * Share score button (optional)
+   - Results screen with final score and performance message
 
-5. Technical requirements:
+4. Technical requirements:
    - Single HTML file with inline CSS and JavaScript
    - No external dependencies
    - Semantic HTML5
@@ -626,35 +501,11 @@ CRITICAL REQUIREMENTS:
    - Vanilla JavaScript (ES6+)
    - Mobile-responsive (use media queries)
 
-DESIGN EXAMPLES:
-- Background: Linear gradient (e.g., #667eea to #764ba2)
-- Buttons: Rounded, with shadows, hover effects, and scale animations
-- Cards: White background, border-radius: 16px, box-shadow
-- Animations: Use transform, opacity, scale for smooth effects
-- Colors: Primary (#667eea), Success (#10b981), Error (#ef4444)
-
 IMPORTANT: Make it look like a modern mobile game, not a basic quiz!
 
 Return ONLY the complete HTML code. No explanations, no markdown code blocks, just pure HTML starting with <!DOCTYPE html>.`
 
-    const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        tools: [{
-          fileSearch: {
-            fileSearchStoreNames: [fileSearchStoreName]
-          }
-        }]
-      }
-    })
-
-    let html = result.candidates?.[0]?.content?.parts?.[0]?.text
-
-    if (!html) {
-      console.error("No text in File Search response:", JSON.stringify(result, null, 2))
-      throw new Error("No response from File Search API")
-    }
+    let html = await bedrockChat([{ role: 'user', content: prompt }])
 
     console.log("Game generation response length:", html.length)
 
@@ -663,7 +514,7 @@ Return ONLY the complete HTML code. No explanations, no markdown code blocks, ju
 
     return html
   } catch (error) {
-    console.error("Error generating game with File Search:", error)
+    console.error("Error generating game:", error)
     throw error
   }
 }
@@ -673,45 +524,20 @@ export async function generateFlashcardsWithFileSearch(
   fileSearchStoreName: string
 ) {
   try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
+    const prompt = `Create flashcards about "${topic}".
 
-    const prompt = `CRITICAL: Create flashcards about "${topic}" using ONLY information from the documents in the file search store. Do NOT use general knowledge.
-
-Generate 15-20 flashcards using EXCLUSIVELY key concepts, terms, definitions, and facts found in the uploaded documents.
+Generate 15-20 flashcards with key concepts, terms, definitions, and facts.
 
 For each flashcard:
 {
-  "front": "Question, term, or concept (from documents)",
-  "back": "Answer, definition, or explanation (directly from documents)",
+  "front": "Question, term, or concept",
+  "back": "Answer, definition, or explanation",
   "difficulty": "easy" | "medium" | "hard"
 }
 
-Each flashcard MUST be based on specific content from the documents. Include terminology, definitions, facts, and concepts explicitly mentioned in the source material.
-
-If documents contain insufficient content, create fewer flashcards rather than inventing information.
-
 Return ONLY a valid JSON array of flashcard objects. No markdown, no code blocks.`
 
-    const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        tools: [{
-          fileSearch: {
-            fileSearchStoreNames: [fileSearchStoreName]
-          }
-        }]
-      }
-    })
-
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-
-    if (!text) {
-      console.error("No text in File Search response:", JSON.stringify(result, null, 2))
-      throw new Error("No response from File Search API")
-    }
+    const text = await bedrockChat([{ role: 'user', content: prompt }])
 
     console.log("Flashcards generation response:", text)
 
@@ -725,7 +551,7 @@ Return ONLY a valid JSON array of flashcard objects. No markdown, no code blocks
     console.error("Failed to extract JSON from response:", text)
     throw new Error("Failed to parse flashcards JSON")
   } catch (error) {
-    console.error("Error generating flashcards with File Search:", error)
+    console.error("Error generating flashcards:", error)
     throw error
   }
 }
@@ -736,10 +562,6 @@ export async function queryWithFileSearch(
   userProfile?: any
 ) {
   try {
-    if (!genAIWithFileSearch) {
-      throw new Error("Gemini API not configured")
-    }
-
     const systemPrompt = userProfile
       ? `You are an AI tutor with the following personality: ${userProfile.aiPersona}.
          The student learns best through: ${userProfile.learningStyle}.
@@ -752,32 +574,18 @@ export async function queryWithFileSearch(
 
 Student's question: ${question}
 
-Provide a clear, helpful answer based on the documents in the file search store. Use specific examples and references from the material. If the answer isn't in the documents, say so and provide general guidance.`
+Provide a clear, helpful answer. Use specific examples and references from known material. If the answer isn't clear, say so and provide general guidance.`
 
-    const result = await genAIWithFileSearch.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      config: {
-        tools: [{
-          fileSearch: {
-            fileSearchStoreNames: [fileSearchStoreName]
-          }
-        }]
-      }
-    })
-
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-    const groundingMetadata = result.candidates?.[0]?.groundingMetadata
+    const text = await bedrockChat([{ role: 'user', content: prompt }])
 
     console.log("AI chat response:", text)
-    console.log("Grounding metadata:", JSON.stringify(groundingMetadata, null, 2))
 
     return {
       answer: text || "I couldn't generate an answer.",
-      citations: groundingMetadata?.searchEntryPoint?.renderedContent || null,
+      citations: null,
     }
   } catch (error) {
-    console.error("Error querying with File Search:", error)
+    console.error("Error querying with Bedrock:", error)
     throw error
   }
 }

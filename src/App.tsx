@@ -37,7 +37,7 @@ function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { takeSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
-  
+
   const [apiKey, setApiKey] = useState('');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -70,8 +70,8 @@ function App() {
         ...params,
         type: 'smoothstep',
         animated: true,
-        style: { 
-          stroke: '#3b82f6', 
+        style: {
+          stroke: '#3b82f6',
           strokeWidth: 2.5,
           strokeLinecap: 'round',
         },
@@ -136,12 +136,6 @@ function App() {
   );
 
   const handleRunExperiment = async () => {
-    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    if (!envApiKey) {
-      alert('Please set VITE_GEMINI_API_KEY in your .env file');
-      return;
-    }
 
     if (nodes.length === 0) {
       alert('Please add components to your experiment first!');
@@ -153,7 +147,6 @@ function App() {
     setAnalysisResult(null);
 
     try {
-      geminiService.setApiKey(envApiKey);
       const experimentJSON = generateExperimentJSON(nodes, edges);
       const result = await geminiService.analyzeExperiment(experimentJSON);
       setAnalysisResult(result);
@@ -231,7 +224,7 @@ function App() {
 
     // Prompt for label
     const label = prompt(`Enter a label for this ${tool}:`, tool.charAt(0).toUpperCase() + tool.slice(1));
-    
+
     if (!label || !label.trim()) {
       return;
     }
@@ -239,7 +232,7 @@ function App() {
     // Create shape directly at center
     const size = 100;
     let points: any[] = [];
-    let bounds = { x: canvasCenter.x - size/2, y: canvasCenter.y - size/2, width: size, height: size };
+    let bounds = { x: canvasCenter.x - size / 2, y: canvasCenter.y - size / 2, width: size, height: size };
 
     switch (tool) {
       case 'rectangle':
@@ -256,8 +249,8 @@ function App() {
         for (let i = 0; i <= 32; i++) {
           const angle = (i / 32) * 2 * Math.PI;
           points.push({
-            x: canvasCenter.x + (size/2) * Math.cos(angle),
-            y: canvasCenter.y + (size/2) * Math.sin(angle),
+            x: canvasCenter.x + (size / 2) * Math.cos(angle),
+            y: canvasCenter.y + (size / 2) * Math.sin(angle),
           });
         }
         break;
@@ -331,14 +324,7 @@ function App() {
   };
 
   const handleRequestHint = async (userMessage: string): Promise<string> => {
-    const envApiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    if (!envApiKey) {
-      return "Oops! I need an API key to help you. Please configure VITE_GEMINI_API_KEY in your .env file. 🔑";
-    }
-
     try {
-      geminiService.setApiKey(envApiKey);
       const experimentJSON = generateExperimentJSON(nodes, edges);
       const hint = await geminiService.getHint(experimentJSON, userMessage);
       return hint;
@@ -350,20 +336,20 @@ function App() {
   return (
     <div style={{ display: 'flex', width: '100vw', height: '100vh', fontFamily: 'system-ui, sans-serif' }}>
       {/* Component Library Sidebar */}
-      <ComponentLibrary onDragStart={() => {}} />
+      <ComponentLibrary onDragStart={() => { }} />
 
       {/* Main Canvas */}
       <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
-        <DrawingToolbar 
-          selectedTool={currentDrawingTool} 
+        <DrawingToolbar
+          selectedTool={currentDrawingTool}
           onToolSelect={handleToolSelect}
         />
-        
-        <DrawingCanvas 
+
+        <DrawingCanvas
           currentTool={currentDrawingTool}
           onShapeComplete={handleShapeComplete}
         />
-        
+
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -379,9 +365,9 @@ function App() {
           fitView
           deleteKeyCode="Delete"
         >
-          <Background 
-            color="#e5e7eb" 
-            gap={20} 
+          <Background
+            color="#e5e7eb"
+            gap={20}
             size={1}
             style={{ backgroundColor: '#f9fafb' }}
           />
@@ -604,7 +590,7 @@ function App() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               maxWidth: '300px',
             }}>
-             
+
               <div style={{
                 marginTop: '12px',
                 padding: '8px',
@@ -621,7 +607,7 @@ function App() {
                 color: '#9ca3af',
                 lineHeight: 1.4,
               }}>
-             
+
               </div>
             </div>
           </Panel>
@@ -671,11 +657,11 @@ function App() {
                     <AlertCircle size={32} color="#ef4444" />
                   )
                 ) : (
-                  <div style={{ 
-                    width: '24px', 
-                    height: '24px', 
-                    border: '3px solid #e5e7eb', 
-                    borderTopColor: '#3b82f6', 
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    border: '3px solid #e5e7eb',
+                    borderTopColor: '#3b82f6',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }} />
@@ -783,7 +769,7 @@ function App() {
                         <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px', fontWeight: 600, color: '#374151' }}>
                           Visual Output
                         </h3>
-                        <div 
+                        <div
                           style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc', borderRadius: '8px', overflow: 'hidden' }}
                           dangerouslySetInnerHTML={{ __html: analysisResult.svg }}
                         />
@@ -793,11 +779,11 @@ function App() {
                 </>
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
-                  <div style={{ 
-                    width: '60px', 
-                    height: '60px', 
-                    border: '6px solid #e5e7eb', 
-                    borderTopColor: '#3b82f6', 
+                  <div style={{
+                    width: '60px',
+                    height: '60px',
+                    border: '6px solid #e5e7eb',
+                    borderTopColor: '#3b82f6',
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                   }} />
@@ -866,16 +852,8 @@ function App() {
               marginBottom: '20px',
             }}>
               <p style={{ margin: 0, fontSize: '13px', color: '#92400e' }}>
-                <strong>Important:</strong> You'll need a Google Gemini API key to run experiments.
-                Get one free at{' '}
-                <a
-                  href="https://makersuite.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: '#1d4ed8', textDecoration: 'underline' }}
-                >
-                  Google AI Studio
-                </a>
+                <strong>Important:</strong> AI-powered experiment analysis is powered by Amazon Bedrock.
+                No additional API key setup is needed.
               </p>
             </div>
 
@@ -890,7 +868,7 @@ function App() {
                 backgroundColor: '#eff6ff',
                 borderRadius: '8px',
               }}>
-                <div style={{ marginBottom: '4px', color: '#3b82f6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                <div style={{ marginBottom: '4px', color: '#3b82f6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Electronics</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>300+ components</div>
               </div>
@@ -899,7 +877,7 @@ function App() {
                 backgroundColor: '#f0fdf4',
                 borderRadius: '8px',
               }}>
-                <div style={{ marginBottom: '4px', color: '#10b981' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></div>
+                <div style={{ marginBottom: '4px', color: '#10b981' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" /><path d="M8.5 2h7" /><path d="M7 16h10" /></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Chemistry</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>200+ components</div>
               </div>
@@ -908,7 +886,7 @@ function App() {
                 backgroundColor: '#faf5ff',
                 borderRadius: '8px',
               }}>
-                <div style={{ marginBottom: '4px', color: '#8b5cf6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 22v-2"/><path d="m17 20.66-1-1.73"/><path d="M11 10.27 7 3.34"/><path d="m20.66 17-1.73-1"/><path d="m3.34 7 1.73 1"/><path d="M14 12h8"/><path d="M2 12h2"/><path d="m20.66 7-1.73 1"/><path d="m3.34 17 1.73-1"/><path d="m17 3.34-1 1.73"/><path d="m11 13.73-4 6.93"/></svg></div>
+                <div style={{ marginBottom: '4px', color: '#8b5cf6' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" /><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M12 2v2" /><path d="M12 22v-2" /><path d="m17 20.66-1-1.73" /><path d="M11 10.27 7 3.34" /><path d="m20.66 17-1.73-1" /><path d="m3.34 7 1.73 1" /><path d="M14 12h8" /><path d="M2 12h2" /><path d="m20.66 7-1.73 1" /><path d="m3.34 17 1.73-1" /><path d="m17 3.34-1 1.73" /><path d="m11 13.73-4 6.93" /></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Physics</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>250+ components</div>
               </div>
@@ -917,7 +895,7 @@ function App() {
                 backgroundColor: '#fffbeb',
                 borderRadius: '8px',
               }}>
-                <div style={{ marginBottom: '4px', color: '#f59e0b' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                <div style={{ marginBottom: '4px', color: '#f59e0b' }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg></div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>Coding</div>
                 <div style={{ fontSize: '11px', color: '#6b7280' }}>200+ components</div>
               </div>
@@ -1068,19 +1046,10 @@ function App() {
             boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
           }}>
             <h2 style={{ margin: '0 0 16px 0', fontSize: '20px', fontWeight: 600 }}>
-              Configure Gemini API Key
+              Configure API Key
             </h2>
             <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
-              Enter your Google Gemini API key to enable AI-powered experiment analysis.
-              Get your API key from{' '}
-              <a
-                href="https://makersuite.google.com/app/apikey"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#3b82f6' }}
-              >
-                Google AI Studio
-              </a>
+              AI-powered experiment analysis is powered by Amazon Bedrock. No additional configuration is needed.
             </p>
             <input
               type="password"
@@ -1117,7 +1086,6 @@ function App() {
               <button
                 onClick={() => {
                   if (apiKey) {
-                    geminiService.setApiKey(apiKey);
                     localStorage.setItem('aiexp-api-key', apiKey);
                     setShowApiKeyModal(false);
                     alert('API key saved successfully!');
@@ -1144,7 +1112,7 @@ function App() {
       )}
 
       {/* Robot Assistant Chatbot */}
-      <RobotAssistant 
+      <RobotAssistant
         experimentJSON={generateExperimentJSON(nodes, edges)}
         onRequestHint={handleRequestHint}
       />

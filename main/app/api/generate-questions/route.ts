@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash", "gemini-2.5-flash"];
+const BEDROCK_API_KEY = process.env.OPENAI_API_KEY || '';
+const BEDROCK_BASE_URL = process.env.OPENAI_BASE_URL || 'https://bedrock-mantle.eu-north-1.api.aws/v1';
+const BEDROCK_MODEL = process.env.OPENAI_MODEL_NAME || 'deepseek.v3.2';
 
 export async function POST(request: NextRequest) {
   try {
     const { category, difficulty, count } = await request.json();
     const normalizedCount = Number(count);
 
-    if (!GEMINI_API_KEY) {
+    if (!BEDROCK_API_KEY) {
       return NextResponse.json(
-        { error: "Gemini API key not configured" },
+        { error: "Bedrock API key not configured" },
         { status: 500 }
       );
     }
@@ -53,59 +54,34 @@ Examples based on category:
 
 Make questions creative, educational, and suitable for canvas drawing. Return ONLY valid JSON, no additional text.`;
 
-    let data: any = null;
-    let lastGeminiError = "";
-
-    for (const model of GEMINI_MODELS) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+    const response = await fetch(`${BEDROCK_BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${BEDROCK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: BEDROCK_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
           },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt,
-                  },
-                ],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2048,
-              responseMimeType: "application/json",
-            },
-          }),
-        }
-      );
+        ],
+      }),
+    });
 
-      if (response.ok) {
-        data = await response.json();
-        break;
-      }
-
+    if (!response.ok) {
       const errorBody = await response.text();
-      lastGeminiError = `Model ${model} failed (${response.status} ${response.statusText}): ${errorBody}`;
-      console.error(lastGeminiError);
-
-      if (response.status !== 400 && response.status !== 404) {
-        break;
-      }
+      throw new Error(`Bedrock API error (${response.status} ${response.statusText}): ${errorBody}`);
     }
 
-    if (!data) {
-      throw new Error(`Gemini API error: ${lastGeminiError || "No compatible model responded successfully."}`);
-    }
-    
-    let generatedText = data.candidates[0]?.content?.parts[0]?.text || "";
-    
+    const data = await response.json();
+    let generatedText = data.choices?.[0]?.message?.content || "";
+
     // Clean up the response - remove markdown code blocks if present
     generatedText = generatedText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    
+
     // Try to parse the JSON
     let questions;
     try {
