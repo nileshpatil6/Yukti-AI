@@ -45,7 +45,7 @@ export default function Home() {
               AI Learn
             </span>
           </div>
-          <Button onClick={() => signIn()} size="lg">
+          <Button onClick={() => signIn("credentials", { name: "Guest User", callbackUrl: "/dashboard" })} size="lg">
             Get Started Free
           </Button>
         </nav>
@@ -73,7 +73,7 @@ export default function Home() {
           </p>
 
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => signIn("google")} size="lg" className="text-lg px-8">
+            <Button onClick={() => signIn("credentials", { name: "Guest User", callbackUrl: "/dashboard" })} size="lg" className="text-lg px-8">
               <Brain className="mr-2 h-5 w-5" />
               Start Learning Now
             </Button>
@@ -197,7 +197,7 @@ export default function Home() {
               Join students worldwide who are learning smarter with AI
             </p>
             <Button
-              onClick={() => signIn("google")}
+              onClick={() => signIn("credentials", { name: "Guest User", callbackUrl: "/dashboard" })}
               size="lg"
               variant="secondary"
               className="text-lg px-8"

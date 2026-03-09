@@ -10,20 +10,18 @@ export const authOptions: NextAuthOptions = {
         name: { label: "Name", type: "text", placeholder: "Enter your name" },
       },
       async authorize(credentials) {
-        if (!credentials?.name) {
-          return null
-        }
+        const nameToUse = credentials?.name || "Guest User"
 
         // Find or create user
         let user = await prisma.user.findFirst({
-          where: { email: `${credentials.name.toLowerCase().replace(/\s+/g, '')}@demo.local` }
+          where: { email: `${nameToUse.toLowerCase().replace(/\s+/g, '')}@demo.local` }
         })
 
         if (!user) {
           user = await prisma.user.create({
             data: {
-              name: credentials.name,
-              email: `${credentials.name.toLowerCase().replace(/\s+/g, '')}@demo.local`,
+              name: nameToUse,
+              email: `${nameToUse.toLowerCase().replace(/\s+/g, '')}@demo.local`,
             }
           })
         }
@@ -56,5 +54,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-guest-login-123",
   debug: process.env.NODE_ENV === "development",
 }
