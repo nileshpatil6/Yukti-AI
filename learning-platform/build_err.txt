@@ -1,0 +1,69 @@
+
+> learning-platform@0.1.0 build
+> next build
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\code\Quadbits\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\code\Quadbits\learning-platform\package-lock.json
+
+   ▲ Next.js 16.0.3 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+ ✓ Compiled successfully in 4.5s
+   Running TypeScript ...
+   Collecting page data using 15 workers ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+DeepGram API key not configured. Voice features will not work.
+Error [DeepgramError]: A deepgram API key is required.
+    at new P (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:3345)
+    at new e (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:31161)
+    at module evaluation (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:31157)
+    at instantiateModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:715:9)
+    at getOrInstantiateModuleFromParent (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:738:12)
+    at Context.esmImport [as i] (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:228:20)
+    at module evaluation (C:\code\Quadbits\learning-platform\.next\server\chunks\[root-of-the-server]__fbb50fe3._.js:177:1134)
+    at instantiateModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:715:9)
+    at instantiateRuntimeModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:743:12)
+    at getOrInstantiateRuntimeModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:756:12) {
+  __dgError: true
+}
+DeepGram API key not configured. Voice features will not work.
+Error [DeepgramError]: A deepgram API key is required.
+    at new P (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:3345)
+    at new e (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:31161)
+    at module evaluation (C:\code\Quadbits\learning-platform\.next\server\chunks\learning-platform_6ff6cf1c._.js:1:31157)
+    at instantiateModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:715:9)
+    at getOrInstantiateModuleFromParent (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:738:12)
+    at Context.esmImport [as i] (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:228:20)
+    at module evaluation (C:\code\Quadbits\learning-platform\.next\server\chunks\[root-of-the-server]__002a9f4e._.js:1:1849)
+    at instantiateModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:715:9)
+    at instantiateRuntimeModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:743:12)
+    at getOrInstantiateRuntimeModule (C:\code\Quadbits\learning-platform\.next\server\chunks\[turbopack]_runtime.js:756:12) {
+  __dgError: true
+}
+
+> Build error occurred
+Error: Failed to collect page data for /api/voice/respond
+    at ignore-listed frames {
+  type: 'Error'
+}

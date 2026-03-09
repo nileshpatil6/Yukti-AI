@@ -6,7 +6,7 @@ if (!deepgramApiKey) {
   console.warn('DeepGram API key not configured. Voice features will not work.')
 }
 
-export const deepgram = createClient(deepgramApiKey)
+export const deepgram = createClient(deepgramApiKey || 'dummy-key-for-build')
 
 // Text-to-Speech (TTS)
 export async function textToSpeech(

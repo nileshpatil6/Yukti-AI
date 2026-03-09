@@ -46,6 +46,8 @@ export async function POST(
     // Get score from request body (optional, defaults to 0)
     const body = await req.json().catch(() => ({}))
     const score = body.score || 0
+    const level = body.level || 1
+    const timeSpent = body.timeSpent || 0
 
     // Create game session
     const gameSession = await prisma.gameSession.create({
@@ -53,7 +55,10 @@ export async function POST(
         userId: user.id,
         gameId: game.id,
         score,
-        completedAt: new Date(),
+        level,
+        timeSpent,
+        playedAt: new Date(),
+        completed: true,
       },
     })
 

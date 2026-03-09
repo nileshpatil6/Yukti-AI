@@ -296,11 +296,10 @@ export default function StudyPlannerPage() {
                     return (
                       <div
                         key={subject.id}
-                        className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                          selected
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${selected
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                          }`}
                         onClick={() => toggleSubject(subject.id)}
                       >
                         <div className="flex items-center justify-between">
@@ -313,20 +312,21 @@ export default function StudyPlannerPage() {
                           </div>
 
                           {selected && (
-                            <Select
-                              value={selected.priority}
-                              onValueChange={(value) => updatePriority(subject.id, value)}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="high">High Priority</SelectItem>
-                                <SelectItem value="medium">Medium</SelectItem>
-                                <SelectItem value="low">Low Priority</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Select
+                                value={selected.priority}
+                                onValueChange={(value) => updatePriority(subject.id, value)}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="high">High Priority</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="low">Low Priority</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -463,11 +463,10 @@ export default function StudyPlannerPage() {
                       {day.sessions.map((session) => (
                         <div
                           key={session.id}
-                          className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                            session.completed
-                              ? "bg-green-50 border-green-200"
-                              : "bg-white border-gray-200 hover:border-gray-300"
-                          }`}
+                          className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${session.completed
+                            ? "bg-green-50 border-green-200"
+                            : "bg-white border-gray-200 hover:border-gray-300"
+                            }`}
                           onClick={() => toggleSession(session.id)}
                         >
                           <div className="flex items-start gap-2">
@@ -517,11 +516,10 @@ export default function StudyPlannerPage() {
                 return (
                   <Card
                     key={milestone.id}
-                    className={`p-6 cursor-pointer transition-all ${
-                      milestone.completed
-                        ? "bg-green-50 border-green-200"
-                        : "hover:shadow-md"
-                    }`}
+                    className={`p-6 cursor-pointer transition-all ${milestone.completed
+                      ? "bg-green-50 border-green-200"
+                      : "hover:shadow-md"
+                      }`}
                     onClick={() => toggleMilestone(milestone.id)}
                   >
                     <div className="flex items-start gap-3">

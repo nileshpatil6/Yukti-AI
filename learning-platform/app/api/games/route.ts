@@ -21,7 +21,7 @@ export async function GET() {
                 games: {
                   include: {
                     sessions: {
-                      orderBy: { completedAt: "desc" },
+                      orderBy: { playedAt: "desc" },
                     },
                   },
                 },
@@ -38,13 +38,13 @@ export async function GET() {
 
     // Collect all games
     const games: any[] = []
-    user.subjects.forEach((subject) => {
-      subject.topics.forEach((topic) => {
-        topic.games.forEach((game) => {
+    user.subjects.forEach((subject: any) => {
+      subject.topics.forEach((topic: any) => {
+        topic.games.forEach((game: any) => {
           games.push({
             ...game,
             topic: {
-              title: topic.title,
+              title: topic.name,
               subject: {
                 id: subject.id,
                 name: subject.name,

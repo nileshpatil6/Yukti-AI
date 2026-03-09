@@ -45,13 +45,13 @@ export async function GET() {
     const totalAttempts = user.quizAttempts.length
     const totalScore = user.quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0)
     const totalQuestions = user.quizAttempts.reduce(
-      (sum, attempt) => sum + attempt.totalQuestions,
+      (sum, attempt: any) => sum + (Array.isArray(attempt.quiz.questions) ? attempt.quiz.questions.length : Object.keys(attempt.quiz.questions || {}).length),
       0
     )
     const averageScore =
-      totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0
+      totalAttempts > 0 ? Math.round(totalScore / totalAttempts) : 0
     const perfectScores = user.quizAttempts.filter(
-      (attempt) => attempt.score === attempt.totalQuestions
+      (attempt) => attempt.score === 100
     ).length
 
     return NextResponse.json({

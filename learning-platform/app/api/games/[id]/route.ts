@@ -48,13 +48,13 @@ export async function GET(
         id: game.id,
         topicId: game.topicId,
         topic: {
-          title: game.topic.title,
+          title: game.topic.name,
           subject: {
             name: game.topic.subject.name,
             color: game.topic.subject.color,
           },
         },
-        gameType: game.gameType,
+        gameType: game.type,
         htmlContent: game.htmlContent,
       },
     })

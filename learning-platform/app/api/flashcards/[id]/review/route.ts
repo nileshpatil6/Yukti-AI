@@ -57,7 +57,7 @@ export async function POST(
     // Cards are stored as JSON, so we work with them directly
     const cards = flashcardSet.cards as any[]
     const cardIndex = cards.findIndex((c: any) => c.id === cardId || c.front === cardId)
-    
+
     if (cardIndex === -1) {
       return NextResponse.json({ error: "Card not found in set" }, { status: 404 })
     }
@@ -75,7 +75,7 @@ export async function POST(
     // Update the card in the JSON array
     cards[cardIndex] = {
       ...card,
-      nextReview: reviewResult.nextReview,
+      nextReview: reviewResult.nextReviewDate,
       repetitions: reviewResult.repetition,
       easeFactor: reviewResult.easeFactor,
       interval: reviewResult.interval,
@@ -96,7 +96,7 @@ export async function POST(
         flashcardSetId: setId,
         cardId: cardId,
         difficulty,
-        nextReviewAt: reviewResult.nextReview,
+        nextReviewAt: reviewResult.nextReviewDate,
       },
     })
 
@@ -105,7 +105,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      nextReview: reviewResult.nextReview,
+      nextReview: reviewResult.nextReviewDate,
       xpEarned,
       message: "Card reviewed successfully",
     })
