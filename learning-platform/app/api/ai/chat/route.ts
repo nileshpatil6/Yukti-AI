@@ -45,9 +45,9 @@ export async function POST(req: Request) {
         },
       })
 
-      if (subject && subject.notes.length > 0) {
+      if (subject && subject.notes && subject.notes.length > 0) {
         context = subject.notes
-          .map((note) => {
+          .map((note: any) => {
             citations.push(note.displayName)
             // In a real implementation, you would:
             // 1. Fetch actual file content from storage
@@ -70,8 +70,8 @@ export async function POST(req: Request) {
       })
 
       context = subjects
-        .flatMap((subject) =>
-          subject.notes.map((note) => {
+        .flatMap((subject: any) =>
+          (subject.notes || []).map((note: any) => {
             citations.push(`${subject.displayName}: ${note.displayName}`)
             return `Subject: ${subject.displayName}\nDocument: ${note.displayName}\nType: ${note.fileType}`
           })

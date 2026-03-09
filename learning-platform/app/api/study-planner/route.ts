@@ -58,8 +58,8 @@ export async function GET() {
     ].map((day) => ({
       day,
       sessions: latestPlan.sessions
-        .filter((s) => s.day === day)
-        .map((s) => ({
+        .filter((s: any) => s.day === day)
+        .map((s: any) => ({
           id: s.id,
           subjectId: s.subjectId,
           subjectName: s.subject.name,
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
       },
     })
 
-    const subjectsWithPriority = subjectDetails.map((s) => ({
+    const subjectsWithPriority = subjectDetails.map((s: any) => ({
       id: s.id,
       name: s.name,
       priority: subjects.find((sub: any) => sub.id === s.id)?.priority || "medium",
@@ -217,8 +217,8 @@ export async function POST(req: Request) {
     ].map((day) => ({
       day,
       sessions: completePlan!.sessions
-        .filter((s) => s.day === day)
-        .map((s) => ({
+        .filter((s: any) => s.day === day)
+        .map((s: any) => ({
           id: s.id,
           subjectId: s.subjectId,
           subjectName: s.subject.name,

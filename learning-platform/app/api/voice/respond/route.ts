@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       if (subject) {
         context = subject.notes
           .map(
-            (note) =>
+            (note: any) =>
               `File: ${note.displayName}\nContent: [Note content placeholder]`
           )
           .join("\n\n")

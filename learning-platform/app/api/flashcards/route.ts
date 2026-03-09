@@ -62,7 +62,8 @@ export async function GET() {
       d.setHours(0, 0, 0, 0)
       return d.getTime()
     })
-    const uniqueDates = [...new Set(reviewDates)].sort((a: any, b: any) => b - a)
+    const uniqueDates = [...new Set(reviewDates)] as number[]
+    uniqueDates.sort((a: any, b: any) => b - a)
 
     let streakDays = 0
     for (let i = 0; i < uniqueDates.length; i++) {

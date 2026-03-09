@@ -27,19 +27,19 @@ export async function GET() {
     }
 
     // Calculate total XP from achievements
-    const totalXP = user.achievements.reduce((sum, ach) => sum + ach.xp, 0)
+    const totalXP = user.achievements.reduce((sum: number, ach: any) => sum + ach.xp, 0)
 
     // Calculate level
     const levelInfo = calculateLevel(totalXP)
 
     // Get unlocked achievement IDs
-    const unlockedIds = user.achievements.map((a) => a.type)
+    const unlockedIds = user.achievements.map((a: any) => a.type)
 
     // Get all achievements with unlock status
     const allAchievements = ACHIEVEMENTS.map((ach) => ({
       ...ach,
       unlocked: unlockedIds.includes(ach.type),
-      unlockedAt: user.achievements.find((a) => a.type === ach.type)?.unlockedAt,
+      unlockedAt: user.achievements.find((a: any) => a.type === ach.type)?.unlockedAt,
     }))
 
     return NextResponse.json({
@@ -95,23 +95,23 @@ export async function POST(req: Request) {
     const stats = {
       onboardingComplete: !!user.learningStyle,
       subjectsCreated: user.subjects.length,
-      notesUploaded: user.subjects.reduce((sum, s) => sum + s.notes.length, 0),
+      notesUploaded: user.subjects.reduce((sum: number, s: any) => sum + s.notes.length, 0),
       currentStreak: user.streak?.currentStreak || 0,
       quizzesCompleted: user.quizAttempts.length,
-      perfectQuizzes: user.quizAttempts.filter((q) => q.score === 100).length,
+      perfectQuizzes: user.quizAttempts.filter((q: any) => q.score === 100).length,
       gamesPlayed: user.gameSessions.length,
       slidesGenerated: user.subjects.reduce(
-        (sum, s) => sum + s.topics.filter((t) => t.slidesGenerated).length,
+        (sum: number, s: any) => sum + s.topics.filter((t: any) => t.slidesGenerated).length,
         0
       ),
       flashcardsCreated: 0, // TODO: count flashcard sets
       flashcardsReviewed: user.flashcardReviews.length,
       aiQuestionsAsked: 0, // TODO: track in separate table
-      totalXP: user.achievements.reduce((sum, a) => sum + a.xp, 0),
+      totalXP: user.achievements.reduce((sum: number, a: any) => sum + a.xp, 0),
     }
 
     // Get existing achievement types
-    const existingTypes = user.achievements.map((a) => a.type)
+    const existingTypes = user.achievements.map((a: any) => a.type)
 
     // Check for new achievements
     const newAchievements = checkAchievements(stats, existingTypes)
