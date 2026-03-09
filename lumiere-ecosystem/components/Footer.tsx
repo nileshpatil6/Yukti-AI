@@ -7,6 +7,10 @@ export const Footer = () => {
       window.location.href = "https://main.d1hvp1lq9dt37i.amplifyapp.com/";
    };
 
+   const handleOpenPlatform = () => {
+      window.location.href = "https://main.d12g8b8lvrkq9l.amplifyapp.com/dashboard";
+   };
+
    return (
       <footer className="bg-transparent pt-40 pb-12 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden transition-colors duration-500">
          {/* Giant Background Text */}
@@ -38,9 +42,15 @@ export const Footer = () => {
                      className="h-16 px-12 text-lg rounded-full"
                      onClick={handleStartBuilding}
                   >
-                     Start Building
+                     Experiment Lab
                   </Button>
-                  <Button variant="outline" className="h-16 px-12 text-lg rounded-full">Take a Guided Tour</Button>
+                  <Button
+                     variant="secondary"
+                     className="h-16 px-12 text-lg rounded-full"
+                     onClick={handleOpenPlatform}
+                  >
+                     Learning Platform
+                  </Button>
                </div>
             </div>
 

@@ -11,6 +11,10 @@ export const Hero = () => {
     window.location.href = "https://main.d1hvp1lq9dt37i.amplifyapp.com/";
   };
 
+  const handleOpenPlatform = () => {
+    window.location.href = "https://main.d12g8b8lvrkq9l.amplifyapp.com/dashboard";
+  };
+
   return (
     <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-zinc-950 transition-colors duration-500">
       {/* Dynamic Background */}
@@ -93,7 +97,14 @@ export const Hero = () => {
               className="h-14 px-8 text-base min-w-[220px]"
               onClick={handleStartBuilding}
             >
-              Start Building
+              Experiment Lab
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-14 px-8 text-base min-w-[220px]"
+              onClick={handleOpenPlatform}
+            >
+              Learning Platform
             </Button>
             <button className="group flex items-center gap-4 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors px-6 py-4 rounded-full hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
               <div className="relative w-10 h-10 flex items-center justify-center">

@@ -12,6 +12,10 @@ export const Navbar = () => {
     window.location.href = "https://main.d1hvp1lq9dt37i.amplifyapp.com/";
   };
 
+  const handleOpenPlatform = () => {
+    window.location.href = "https://main.d12g8b8lvrkq9l.amplifyapp.com/dashboard";
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -85,7 +89,10 @@ export const Navbar = () => {
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
               <a href="https://main.d1hvp1lq9dt37i.amplifyapp.com/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
-                Start Building
+                Experiment Lab
+              </a>
+              <a href="https://main.d12g8b8lvrkq9l.amplifyapp.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-500 transition-colors">
+                Learning Platform
               </a>
 
             </div>
@@ -145,7 +152,14 @@ export const Navbar = () => {
                 className="w-full py-6 text-lg"
                 onClick={handleStartBuilding}
               >
-                Start Building
+                Experiment Lab
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full py-6 text-lg mt-4"
+                onClick={handleOpenPlatform}
+              >
+                Learning Platform
               </Button>
             </div>
           </motion.div>
